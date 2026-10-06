@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Personal evaluation set and baselines (not published; eval/demo is the public corpus)
+eval/questions.json
+eval/results-*.json
+
+# Regenerable QA screenshots from the visual-explainer skill
+docs/shots/
+docs/*-step*.png
+
+# Local agent memory (kept out of the public repo)
+.agent/
+
+# Explainers render an MP4 alongside the committed GIF; the MP4 is a local/social asset
+docs/*.mp4

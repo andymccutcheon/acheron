@@ -1,0 +1,183 @@
+{
+ "summary": {
+  "native": {
+   "top1": 7,
+   "top3": 12
+  },
+  "mercury": {
+   "top1": 14,
+   "top3": 15
+  },
+  "fuse_mercury": {
+   "top1": 9,
+   "top3": 14
+  }
+ },
+ "mean_latency_s": {
+  "native": 0.2246963232755661,
+  "mercury": 0.34781624376773834
+ },
+ "all_projects": false,
+ "rows": [
+  {
+   "id": 1,
+   "q": "Why did Tidepool drop its mobile app?",
+   "accept": [
+    "drop the native mobile app"
+   ],
+   "native_rank": 7,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 4
+  },
+  {
+   "id": 2,
+   "q": "What database does Tidepool use and why?",
+   "accept": [
+    "sqlite over postgres"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 3,
+   "q": "How does Tidepool resolve sync conflicts between devices?",
+   "accept": [
+    "crdt conflict resolution"
+   ],
+   "native_rank": 2,
+   "mercury_rank": 3,
+   "fuse_mercury_rank": 2
+  },
+  {
+   "id": 4,
+   "q": "Why did the team abandon the Electron wrapper?",
+   "accept": [
+    "abandon the electron wrapper"
+   ],
+   "native_rank": 2,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 2
+  },
+  {
+   "id": 5,
+   "q": "What happened during the November 2025 sync storm?",
+   "accept": [
+    "2025-11 sync storm"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 6,
+   "q": "Why did duplicate photos appear after version 0.4.2?",
+   "accept": [
+    "duplicate photos after 0.4.2"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 7,
+   "q": "What is Tidepool's position on cloud sync?",
+   "accept": [
+    "local-first, no cloud sync"
+   ],
+   "native_rank": 5,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 8,
+   "q": "How does progressive import keep memory usage flat?",
+   "accept": [
+    "progressive photo import"
+   ],
+   "native_rank": 2,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 2
+  },
+  {
+   "id": 9,
+   "q": "Who owns the storage layer and import pipeline?",
+   "accept": [
+    "jonas weber"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 10,
+   "q": "What caused the corrupted thumbnails in April?",
+   "accept": [
+    "corrupted thumbnail cache"
+   ],
+   "native_rank": 2,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 11,
+   "q": "What approach did the team settle on for edits from two devices?",
+   "accept": [
+    "crdt conflict resolution"
+   ],
+   "native_rank": 2,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 2
+  },
+  {
+   "id": 12,
+   "q": "How do I get Tidepool running on a new laptop?",
+   "accept": [
+    "run tidepool locally"
+   ],
+   "native_rank": null,
+   "mercury_rank": null,
+   "fuse_mercury_rank": null
+  },
+  {
+   "id": 13,
+   "q": "What's planned for the first half of 2026?",
+   "accept": [
+    "roadmap 2026 h1"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 14,
+   "q": "Who ran the mobile sunset communications?",
+   "accept": [
+    "priya nair"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  },
+  {
+   "id": 15,
+   "q": "What does the photo content hash cover?",
+   "accept": [
+    "photo library format"
+   ],
+   "native_rank": 4,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 2
+  },
+  {
+   "id": 16,
+   "q": "What are the steps before shipping a release?",
+   "accept": [
+    "release checklist"
+   ],
+   "native_rank": 1,
+   "mercury_rank": 1,
+   "fuse_mercury_rank": 1
+  }
+ ]
+}

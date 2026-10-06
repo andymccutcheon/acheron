@@ -1,0 +1,1534 @@
+{
+ "questions": [
+  {
+   "id": 1,
+   "q": "Why did Tidepool drop its mobile app?",
+   "accept": [
+    "drop the native mobile app"
+   ],
+   "candidates": [
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 1.221922401336729
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 1.124640393170782
+    },
+    {
+     "title": "Priya Nair",
+     "entity": "tidepool/people/priya-nair",
+     "path": "tidepool/people/priya-nair",
+     "file_path": "people/Priya Nair.md",
+     "project": "",
+     "snippet": "# Priya Nair Priya Nair leads product and community for Tidepool. She owned the mobile apps until their retirement and writes the weekly notes. ## Focus - [product] Mobile app owner, 2023-2025; ran the sunset communications. - [incident] Fronted the duplicate photos response after v0.4.2. - [community] Runs beta testing and the roadmap process. - [process] Co-maintains the release checklist. ## Relations - relates_to [[Mobile App]] - relates_to [[Roadmap 2026 H1]]",
+     "native_score": 1.0366046565431262
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.9537237870770963
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.9210130149585048
+    },
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.9054607715701246
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.8875367287054635
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.8175827392008642
+    },
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 0.7545514437543609
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.7534270939152303
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "q": "What database does Tidepool use and why?",
+   "accept": [
+    "sqlite over postgres"
+   ],
+   "candidates": [
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 1.2477351227820832
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 1.0902439597227505
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 1.0417982060775024
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.9825233831346427
+    },
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.9254276656493439
+    },
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 0.9171169258145246
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.9097593233012273
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.8953644841679087
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.8885472262056776
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.8830741848880016
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "q": "How does Tidepool resolve sync conflicts between devices?",
+   "accept": [
+    "crdt conflict resolution"
+   ],
+   "candidates": [
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 1.2339522987844356
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.9291026626056959
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.8696381027743436
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 0.8264568612266413
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.8045804078696759
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.8027841925989941
+    },
+    {
+     "title": "2026-01-12 Weekly",
+     "entity": "tidepool/meetings/2026-01-12-weekly",
+     "path": "tidepool/meetings/2026-01-12-weekly",
+     "file_path": "meetings/2026-01-12 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-01-12 Weekly Attendees: Maya, Jonas, Priya. ## Conflicts - Maya presented the CRDT proposal: OR-Set membership, hybrid clocks for scalars. - Jonas raised migration and upgrade-order concerns; agreed to a version flag. - Decision recorded: [[Decision - CRDT conflict resolution]]. ## Roadmap - H1 themes drafted; Priya will circulate [[Roadmap 2026 H1]].",
+     "native_score": 0.796492499528864
+    },
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.7935058112853218
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.7920745353145502
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.7861422027360584
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "q": "Why did the team abandon the Electron wrapper?",
+   "accept": [
+    "abandon the electron wrapper"
+   ],
+   "candidates": [
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 1.1879800752672574
+    },
+    {
+     "title": "Decision - Abandon the Electron wrapper",
+     "entity": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "path": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "file_path": "decisions/Decision - Abandon the Electron wrapper.md",
+     "project": "",
+     "snippet": "# Decision - Abandon the Electron wrapper Status: accepted, March 2026. ## Context The desktop shell wrapped the web UI in Electron. Bundle size, native module mismatches, and predictable security review noise kept costing release time. ## Decision Remove the Electron shell. Ship the local web UI as the primary desktop experience; revisit a native shell only if a concrete use case appears. ## Alternatives - Tauri: smaller, but a second toolchain to maintain for a two-person team. - Keep Electron: rejected on maintenance cost. ## Consequences - The installer shrinks; the auto-update path is temporarily manual. - Users who expected a dock icon get a documented browser-based flow.",
+     "native_score": 1.0074150269266535
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.7248842395099907
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.6993583724673827
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.6947629298076516
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.6410378761822528
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.6325941962387258
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.6257045415404718
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.6239644390725783
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.620237316547211
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "q": "What happened during the November 2025 sync storm?",
+   "accept": [
+    "2025-11 sync storm"
+   ],
+   "candidates": [
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.8099192500699246
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.7163372520259355
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.7127141925513953
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.6231382322372312
+    },
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 0.5987700636835154
+    },
+    {
+     "title": "2026-04 Corrupted thumbnail cache",
+     "entity": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "path": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "file_path": "incidents/2026-04 Corrupted thumbnail cache.md",
+     "project": "",
+     "snippet": "# 2026-04 Corrupted thumbnail cache Date: April 2026. Severity: low. Owner: Jonas Weber. ## Summary A cache-invalidation bug wrote thumbnails under stale keys after migrations, producing mismatched images in the grid. ## Fix Cache keys now include the schema version; the cache is regenerated on mismatch. No original files were affected (see [[Storage Layer]]).",
+     "native_score": 0.597374684074957
+    },
+    {
+     "title": "2026-01-12 Weekly",
+     "entity": "tidepool/meetings/2026-01-12-weekly",
+     "path": "tidepool/meetings/2026-01-12-weekly",
+     "file_path": "meetings/2026-01-12 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-01-12 Weekly Attendees: Maya, Jonas, Priya. ## Conflicts - Maya presented the CRDT proposal: OR-Set membership, hybrid clocks for scalars. - Jonas raised migration and upgrade-order concerns; agreed to a version flag. - Decision recorded: [[Decision - CRDT conflict resolution]]. ## Roadmap - H1 themes drafted; Priya will circulate [[Roadmap 2026 H1]].",
+     "native_score": 0.5943857774641117
+    },
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 0.578093405119084
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.5749952673534278
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.5737527508071434
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "q": "Why did duplicate photos appear after version 0.4.2?",
+   "accept": [
+    "duplicate photos after 0.4.2"
+   ],
+   "candidates": [
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.8108714014322924
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.7546343346013771
+    },
+    {
+     "title": "2026-04 Corrupted thumbnail cache",
+     "entity": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "path": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "file_path": "incidents/2026-04 Corrupted thumbnail cache.md",
+     "project": "",
+     "snippet": "# 2026-04 Corrupted thumbnail cache Date: April 2026. Severity: low. Owner: Jonas Weber. ## Summary A cache-invalidation bug wrote thumbnails under stale keys after migrations, producing mismatched images in the grid. ## Fix Cache keys now include the schema version; the cache is regenerated on mismatch. No original files were affected (see [[Storage Layer]]).",
+     "native_score": 0.6844705886450129
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.6671935461935004
+    },
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.6406900770304542
+    },
+    {
+     "title": "Decision - Progressive photo import",
+     "entity": "tidepool/decisions/decision-progressive-photo-import",
+     "path": "tidepool/decisions/decision-progressive-photo-import",
+     "file_path": "decisions/Decision - Progressive photo import.md",
+     "project": "",
+     "snippet": "# Decision - Progressive photo import Status: accepted, October 2025. ## Context Importing a 200k-photo library in one pass held the whole manifest in memory and stalled the UI. ## Decision Stream imports in chunks of 500 files: hash, insert, and thumbnail each chunk, then release it. The manifest is a resumable journal (see [[Storage Layer]]). ## Consequences - Peak memory is flat regardless of library size. - Import can resume after a crash; partial imports are visible and repairable. - Progress reporting is chunk-granular rather than file-granular.",
+     "native_score": 0.6350942397305044
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.6301548775260741
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 0.6129564529655038
+    },
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 0.598058488128089
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.5843651359703514
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "q": "What is Tidepool's position on cloud sync?",
+   "accept": [
+    "local-first, no cloud sync"
+   ],
+   "candidates": [
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 1.2127105806711007
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 1.0086578780670425
+    },
+    {
+     "title": "Run Tidepool locally",
+     "entity": "tidepool/guides/run-tidepool-locally",
+     "path": "tidepool/guides/run-tidepool-locally",
+     "file_path": "guides/Run Tidepool locally.md",
+     "project": "",
+     "snippet": "# Run Tidepool locally Tidepool runs as a local server plus a browser UI. ## Steps 1. Install the package for your platform. 2. Run `tidepool`; it creates a library in `~/Pictures/Tidepool` (see [[Photo library format]]). 3. Open the printed localhost URL. 4. Import photos; large libraries stream in chunks (see [[Decision - Progressive photo import]]). ## Troubleshooting - Thumbnails regenerate automatically if the cache looks wrong (see [[2026-04 Corrupted thumbnail cache]]). - For sync between machines, point both devices at a shared folder.",
+     "native_score": 0.9907121118866917
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.9730727013214178
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.9698056232360375
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.9385903328222089
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.9045735338434541
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.8767972652608136
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 0.8484186615793493
+    },
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.8377851357646967
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "q": "How does progressive import keep memory usage flat?",
+   "accept": [
+    "progressive photo import"
+   ],
+   "candidates": [
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 1.2000579029205605
+    },
+    {
+     "title": "Decision - Progressive photo import",
+     "entity": "tidepool/decisions/decision-progressive-photo-import",
+     "path": "tidepool/decisions/decision-progressive-photo-import",
+     "file_path": "decisions/Decision - Progressive photo import.md",
+     "project": "",
+     "snippet": "# Decision - Progressive photo import Status: accepted, October 2025. ## Context Importing a 200k-photo library in one pass held the whole manifest in memory and stalled the UI. ## Decision Stream imports in chunks of 500 files: hash, insert, and thumbnail each chunk, then release it. The manifest is a resumable journal (see [[Storage Layer]]). ## Consequences - Peak memory is flat regardless of library size. - Import can resume after a crash; partial imports are visible and repairable. - Progress reporting is chunk-granular rather than file-granular.",
+     "native_score": 0.8934739038555001
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.8500406731354668
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.7356063381069713
+    },
+    {
+     "title": "Run Tidepool locally",
+     "entity": "tidepool/guides/run-tidepool-locally",
+     "path": "tidepool/guides/run-tidepool-locally",
+     "file_path": "guides/Run Tidepool locally.md",
+     "project": "",
+     "snippet": "# Run Tidepool locally Tidepool runs as a local server plus a browser UI. ## Steps 1. Install the package for your platform. 2. Run `tidepool`; it creates a library in `~/Pictures/Tidepool` (see [[Photo library format]]). 3. Open the printed localhost URL. 4. Import photos; large libraries stream in chunks (see [[Decision - Progressive photo import]]). ## Troubleshooting - Thumbnails regenerate automatically if the cache looks wrong (see [[2026-04 Corrupted thumbnail cache]]). - For sync between machines, point both devices at a shared folder.",
+     "native_score": 0.7229203677455504
+    },
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 0.717398014967273
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.7110652739148039
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 0.6918850475804121
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.6709204341827846
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.6621234129764793
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "q": "Who owns the storage layer and import pipeline?",
+   "accept": [
+    "jonas weber"
+   ],
+   "candidates": [
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 1.2113062879737868
+    },
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.8083282500152943
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.7698562146782829
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.7488379296561885
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.7193496496786188
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.718291388906953
+    },
+    {
+     "title": "Decision - Progressive photo import",
+     "entity": "tidepool/decisions/decision-progressive-photo-import",
+     "path": "tidepool/decisions/decision-progressive-photo-import",
+     "file_path": "decisions/Decision - Progressive photo import.md",
+     "project": "",
+     "snippet": "# Decision - Progressive photo import Status: accepted, October 2025. ## Context Importing a 200k-photo library in one pass held the whole manifest in memory and stalled the UI. ## Decision Stream imports in chunks of 500 files: hash, insert, and thumbnail each chunk, then release it. The manifest is a resumable journal (see [[Storage Layer]]). ## Consequences - Peak memory is flat regardless of library size. - Import can resume after a crash; partial imports are visible and repairable. - Progress reporting is chunk-granular rather than file-granular.",
+     "native_score": 0.7037054554123637
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 0.6925267653329996
+    },
+    {
+     "title": "2026-04 Corrupted thumbnail cache",
+     "entity": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "path": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "file_path": "incidents/2026-04 Corrupted thumbnail cache.md",
+     "project": "",
+     "snippet": "# 2026-04 Corrupted thumbnail cache Date: April 2026. Severity: low. Owner: Jonas Weber. ## Summary A cache-invalidation bug wrote thumbnails under stale keys after migrations, producing mismatched images in the grid. ## Fix Cache keys now include the schema version; the cache is regenerated on mismatch. No original files were affected (see [[Storage Layer]]).",
+     "native_score": 0.6695443499372105
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.6625051666917896
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "q": "What caused the corrupted thumbnails in April?",
+   "accept": [
+    "corrupted thumbnail cache"
+   ],
+   "candidates": [
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 1.1711395383294112
+    },
+    {
+     "title": "2026-04 Corrupted thumbnail cache",
+     "entity": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "path": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "file_path": "incidents/2026-04 Corrupted thumbnail cache.md",
+     "project": "",
+     "snippet": "# 2026-04 Corrupted thumbnail cache Date: April 2026. Severity: low. Owner: Jonas Weber. ## Summary A cache-invalidation bug wrote thumbnails under stale keys after migrations, producing mismatched images in the grid. ## Fix Cache keys now include the schema version; the cache is regenerated on mismatch. No original files were affected (see [[Storage Layer]]).",
+     "native_score": 0.8801283811718817
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.6985535972446154
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.6672188811655531
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.648770731480542
+    },
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.6416718419925047
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.6382807299407443
+    },
+    {
+     "title": "Run Tidepool locally",
+     "entity": "tidepool/guides/run-tidepool-locally",
+     "path": "tidepool/guides/run-tidepool-locally",
+     "file_path": "guides/Run Tidepool locally.md",
+     "project": "",
+     "snippet": "# Run Tidepool locally Tidepool runs as a local server plus a browser UI. ## Steps 1. Install the package for your platform. 2. Run `tidepool`; it creates a library in `~/Pictures/Tidepool` (see [[Photo library format]]). 3. Open the printed localhost URL. 4. Import photos; large libraries stream in chunks (see [[Decision - Progressive photo import]]). ## Troubleshooting - Thumbnails regenerate automatically if the cache looks wrong (see [[2026-04 Corrupted thumbnail cache]]). - For sync between machines, point both devices at a shared folder.",
+     "native_score": 0.6239485220669462
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.5719475108680125
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.5607622635130252
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "q": "What approach did the team settle on for edits from two devices?",
+   "accept": [
+    "crdt conflict resolution"
+   ],
+   "candidates": [
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 1.1882211923731227
+    },
+    {
+     "title": "Decision - CRDT conflict resolution",
+     "entity": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "path": "tidepool/decisions/decision-crdt-conflict-resolution",
+     "file_path": "decisions/Decision - CRDT conflict resolution.md",
+     "project": "",
+     "snippet": "# Decision - CRDT conflict resolution Status: accepted, January 2026. ## Context Two devices editing the same album before syncing produced lost edits. Timestamp ordering failed across devices with skewed clocks; a server arbiter is impossible (see [[Decision - Local-first, no cloud sync]]). ## Decision Use CRDTs for collaborative collections: - OR-Set for album membership and tags. - Hybrid logical clocks for scalar fields, last-writer-wins per field. - Tombstones for deletions, garbage-collected after 30 days. ## Alternatives rejected - Server arbitration: no server. - Manual conflict prompts: users found them confusing in beta. ## Consequences - Every client must upgrade together for full convergence. - Implemented in the sync engine behind a version flag (see [[Sync Engine]]).",
+     "native_score": 0.8516576792620545
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.702183016207742
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.6541948988263768
+    },
+    {
+     "title": "Decision - Abandon the Electron wrapper",
+     "entity": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "path": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "file_path": "decisions/Decision - Abandon the Electron wrapper.md",
+     "project": "",
+     "snippet": "# Decision - Abandon the Electron wrapper Status: accepted, March 2026. ## Context The desktop shell wrapped the web UI in Electron. Bundle size, native module mismatches, and predictable security review noise kept costing release time. ## Decision Remove the Electron shell. Ship the local web UI as the primary desktop experience; revisit a native shell only if a concrete use case appears. ## Alternatives - Tauri: smaller, but a second toolchain to maintain for a two-person team. - Keep Electron: rejected on maintenance cost. ## Consequences - The installer shrinks; the auto-update path is temporarily manual. - Users who expected a dock icon get a documented browser-based flow.",
+     "native_score": 0.6375110582666587
+    },
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 0.6027425671038529
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.5813383399598067
+    },
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 0.5667404692794662
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.5636140864410706
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.5594137503846621
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "q": "How do I get Tidepool running on a new laptop?",
+   "accept": [
+    "run tidepool locally"
+   ],
+   "candidates": [
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 1.1735781081316339
+    },
+    {
+     "title": "Decision - Abandon the Electron wrapper",
+     "entity": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "path": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "file_path": "decisions/Decision - Abandon the Electron wrapper.md",
+     "project": "",
+     "snippet": "# Decision - Abandon the Electron wrapper Status: accepted, March 2026. ## Context The desktop shell wrapped the web UI in Electron. Bundle size, native module mismatches, and predictable security review noise kept costing release time. ## Decision Remove the Electron shell. Ship the local web UI as the primary desktop experience; revisit a native shell only if a concrete use case appears. ## Alternatives - Tauri: smaller, but a second toolchain to maintain for a two-person team. - Keep Electron: rejected on maintenance cost. ## Consequences - The installer shrinks; the auto-update path is temporarily manual. - Users who expected a dock icon get a documented browser-based flow.",
+     "native_score": 1.1695870818059728
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 1.1013988063682318
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 1.0930306690895837
+    },
+    {
+     "title": "Priya Nair",
+     "entity": "tidepool/people/priya-nair",
+     "path": "tidepool/people/priya-nair",
+     "file_path": "people/Priya Nair.md",
+     "project": "",
+     "snippet": "# Priya Nair Priya Nair leads product and community for Tidepool. She owned the mobile apps until their retirement and writes the weekly notes. ## Focus - [product] Mobile app owner, 2023-2025; ran the sunset communications. - [incident] Fronted the duplicate photos response after v0.4.2. - [community] Runs beta testing and the roadmap process. - [process] Co-maintains the release checklist. ## Relations - relates_to [[Mobile App]] - relates_to [[Roadmap 2026 H1]]",
+     "native_score": 1.0753094554358935
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 1.0597088466147482
+    },
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 1.0455555496763234
+    },
+    {
+     "title": "Conflict Resolution",
+     "entity": "tidepool/concepts/conflict-resolution",
+     "path": "tidepool/concepts/conflict-resolution",
+     "file_path": "concepts/Conflict Resolution.md",
+     "project": "",
+     "snippet": "# Conflict Resolution Conflicts happen when two devices edit the same library record before syncing. Tidepool resolves them deterministically so every device converges on the same state. ## Approach - Field-level last-writer-wins with hybrid logical clocks for metadata. - Photo membership and album edits use CRDT sets, adopted in January 2026 (see [[Decision - CRDT conflict resolution]]). - Deletions are tombstones, garbage-collected after 30 days without opposing edits. ## Why not simpler schemes - Server-authoritative resolution is off the table: Tidepool has no server (see [[Decision - Local-first, no cloud sync]]). - Timestamp-only ordering broke across devices with skewed clocks. ## Relations - relates_to [[Sync Engine]] - relates_to [[Decision - CRDT conflict resolution]] - relates_to [[Maya Chen]]",
+     "native_score": 1.0412258813761173
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 1.0367256582772022
+    },
+    {
+     "title": "2026-01-12 Weekly",
+     "entity": "tidepool/meetings/2026-01-12-weekly",
+     "path": "tidepool/meetings/2026-01-12-weekly",
+     "file_path": "meetings/2026-01-12 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-01-12 Weekly Attendees: Maya, Jonas, Priya. ## Conflicts - Maya presented the CRDT proposal: OR-Set membership, hybrid clocks for scalars. - Jonas raised migration and upgrade-order concerns; agreed to a version flag. - Decision recorded: [[Decision - CRDT conflict resolution]]. ## Roadmap - H1 themes drafted; Priya will circulate [[Roadmap 2026 H1]].",
+     "native_score": 1.0227906678503895
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "q": "What's planned for the first half of 2026?",
+   "accept": [
+    "roadmap 2026 h1"
+   ],
+   "candidates": [
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 0.6453840315218553
+    },
+    {
+     "title": "2026-01-12 Weekly",
+     "entity": "tidepool/meetings/2026-01-12-weekly",
+     "path": "tidepool/meetings/2026-01-12-weekly",
+     "file_path": "meetings/2026-01-12 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-01-12 Weekly Attendees: Maya, Jonas, Priya. ## Conflicts - Maya presented the CRDT proposal: OR-Set membership, hybrid clocks for scalars. - Jonas raised migration and upgrade-order concerns; agreed to a version flag. - Decision recorded: [[Decision - CRDT conflict resolution]]. ## Roadmap - H1 themes drafted; Priya will circulate [[Roadmap 2026 H1]].",
+     "native_score": 0.6176593487927491
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.5699956918528812
+    },
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 0.5584206704131418
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "q": "Who ran the mobile sunset communications?",
+   "accept": [
+    "priya nair"
+   ],
+   "candidates": [
+    {
+     "title": "Priya Nair",
+     "entity": "tidepool/people/priya-nair",
+     "path": "tidepool/people/priya-nair",
+     "file_path": "people/Priya Nair.md",
+     "project": "",
+     "snippet": "# Priya Nair Priya Nair leads product and community for Tidepool. She owned the mobile apps until their retirement and writes the weekly notes. ## Focus - [product] Mobile app owner, 2023-2025; ran the sunset communications. - [incident] Fronted the duplicate photos response after v0.4.2. - [community] Runs beta testing and the roadmap process. - [process] Co-maintains the release checklist. ## Relations - relates_to [[Mobile App]] - relates_to [[Roadmap 2026 H1]]",
+     "native_score": 1.1760770510421394
+    },
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 0.779651736602442
+    },
+    {
+     "title": "Decision - Drop the native mobile app",
+     "entity": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "path": "tidepool/decisions/decision-drop-the-native-mobile-app",
+     "file_path": "decisions/Decision - Drop the native mobile app.md",
+     "project": "",
+     "snippet": "# Decision - Drop the native mobile app Status: accepted, August 2025. ## Context The two-person team maintained iOS and Android clients plus a relay service. Sync bugs on mobile consumed about half of each release cycle, and the relay added a server dependency the project did not want (see [[Decision - Local-first, no cloud sync]]). ## Options considered 1. Keep both clients and hire: not viable for a volunteer team. 2. Keep one platform: still owned a relay and store review cycles. 3. Retire both and invest in the desktop engine: chosen. ## Decision Retire the native apps; keep a read-only web gallery for sharing. Direct users to the desktop import flow. ## Consequences - Mobile sync reliability issues end; community reaction was mixed. - The relay service was shut down in September 2025.",
+     "native_score": 0.653617751157437
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.63711300245082
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.34270084641366605
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.29724532594515124
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 0.25709252851661873
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.2274835476194455
+    },
+    {
+     "title": "2025-11 Sync storm",
+     "entity": "tidepool/incidents/2025-11-sync-storm",
+     "path": "tidepool/incidents/2025-11-sync-storm",
+     "file_path": "incidents/2025-11 Sync storm.md",
+     "project": "",
+     "snippet": "# 2025-11 Sync storm Date: November 2025. Severity: high. Owner: Jonas Weber. ## Summary A relay outage caused clients to retry aggressively. Retries amplified into a request storm when devices reconnected together, and some clients spun for hours. ## Timeline - Nov 3: relay rate limits began returning 429s. - Nov 4: retry storm; battery drain reports from users. - Nov 5: workaround published (disable relay sync); fix landed with exponential backoff and jitter. ## Root cause Retry logic had no backoff and no cap; reconnection was synchronized across devices. ## Follow-ups - Backoff and a retry budget shipped in v0.4.1. - Mobile clients were retired the following year (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.2224993685691987
+    },
+    {
+     "title": "Decision - Local-first, no cloud sync",
+     "entity": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "path": "tidepool/decisions/decision-local-first-no-cloud-sync",
+     "file_path": "decisions/Decision - Local-first, no cloud sync.md",
+     "project": "",
+     "snippet": "# Decision - Local-first, no cloud sync Status: accepted, May 2025. ## Context Tidepool began as a personal library tool. Every design proposal that added a hosted component also added accounts, privacy questions, and ongoing costs. ## Decision Tidepool stores all data locally. There is no Tidepool account, no hosted sync service, and no telemetry. Device-to-device sync (see [[Sync Engine]]) is peer-to-peer or through a user-provided folder. ## Consequences - Sharing requires exporting or a self-hosted read-only gallery. - The project avoids operational costs and vendor dependencies. - Mobile clients that relied on a relay were eventually retired (see [[Decision - Drop the native mobile app]]).",
+     "native_score": 0.21755186086582162
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "q": "What does the photo content hash cover?",
+   "accept": [
+    "photo library format"
+   ],
+   "candidates": [
+    {
+     "title": "2026-02-09 Weekly",
+     "entity": "tidepool/meetings/2026-02-09-weekly",
+     "path": "tidepool/meetings/2026-02-09-weekly",
+     "file_path": "meetings/2026-02-09 Weekly.md",
+     "project": "",
+     "snippet": "# 2026-02-09 Weekly Attendees: Maya, Jonas, Priya. ## Duplicate photos - Beta reports of duplicated imports after v0.4.2 (see [[2026-02 Duplicate photos after 0.4.2]]). - Root cause: one import path hashed metadata, not content. - Repair command scoped; Priya to post the user note. ## Import - Progressive import rollout looks healthy on large libraries.",
+     "native_score": 1.1920633502210563
+    },
+    {
+     "title": "Storage Layer",
+     "entity": "tidepool/concepts/storage-layer",
+     "path": "tidepool/concepts/storage-layer",
+     "file_path": "concepts/Storage Layer.md",
+     "project": "",
+     "snippet": "# Storage Layer Each library is a single directory plus one SQLite database. The exact layout is specified in [[Photo library format]]. ## Design - SQLite holds the index, metadata, and sync state (see [[Decision - SQLite over Postgres]]). - Original files are never modified; thumbnails live in a regenerable cache. - Content hashes drive deduplication during import. - Import is chunked to keep memory flat on large libraries (see [[Decision - Progressive photo import]]). ## Known issues - The thumbnail cache was corrupted by a cache-invalidation bug in April 2026 (see [[2026-04 Corrupted thumbnail cache]]). - Jonas Weber owns this area. ## Relations - relates_to [[Jonas Weber]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 1.0212706701156944
+    },
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 0.78499052943182
+    },
+    {
+     "title": "Photo library format",
+     "entity": "tidepool/guides/photo-library-format",
+     "path": "tidepool/guides/photo-library-format",
+     "file_path": "guides/Photo library format.md",
+     "project": "",
+     "snippet": "# Photo library format A Tidepool library is one directory: library/ tidepool.db # index, metadata, sync state (SQLite) originals/ # content-addressed photo files cache/ # regenerable thumbnails ## Rules - Original files are immutable; file names are content hashes. - The content hash covers file bytes plus capture metadata, not the file path. - `cache/` may be deleted at any time; it rebuilds from originals. - Album and tag structure lives in the database, never in the file tree. See [[Decision - SQLite over Postgres]] and [[Decision - Progressive photo import]].",
+     "native_score": 0.7750437938940842
+    },
+    {
+     "title": "2026-02 Duplicate photos after 0.4.2",
+     "entity": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "path": "tidepool/incidents/2026-02-duplicate-photos-after-0.4.2",
+     "file_path": "incidents/2026-02 Duplicate photos after 0.4.2.md",
+     "project": "",
+     "snippet": "# 2026-02 Duplicate photos after 0.4.2 Date: February 2026. Severity: medium. Owner: Maya Chen. ## Summary After the v0.4.2 import changes, re-running an import on existing libraries duplicated some photos. The dedup hash was computed over file metadata instead of content in one code path. ## Impact About 40 beta libraries affected; no data loss, but clean-up was required. ## Fix Restored content-hash deduplication and added a repair command that merges duplicates by hash (see [[Storage Layer]]). ## Follow-ups - Hash computation is now covered by the release checklist. - Priya ran user communications.",
+     "native_score": 0.7724140739079556
+    },
+    {
+     "title": "Sync Engine",
+     "entity": "tidepool/concepts/sync-engine",
+     "path": "tidepool/concepts/sync-engine",
+     "file_path": "concepts/Sync Engine.md",
+     "project": "",
+     "snippet": "# Sync Engine The sync engine moves a photo library between a user's devices without a server. Every device keeps a full local index; changes propagate as operation logs over the local network or through a user-provided shared folder. ## How it works - Each device runs a sync agent that watches the library directory for changes. - Operations are exchanged as append-only logs and applied through the conflict resolver (see [[Conflict Resolution]]). - Sync state lives in the same SQLite database as the library index (see [[Storage Layer]]). - Mobile clients used a different relay transport and were sunset in August 2025 (see [[Decision - Drop the native mobile app]]). ## Failure modes - A retry storm against a rate-limited relay caused the November 2025 incident (see [[2025-11 Sync storm]]). - Duplicate photo imports after v0.4.2 came from the dedup hash, not the engine (see [[2026-02 Duplicate photos after 0.4.2]]). ## Relations - relates_to [[Conflict Resolution]] - relates_to [[Storage Layer]] - relates_to [[Maya Chen]] - relates_to [[Jonas Weber]]",
+     "native_score": 0.7574451217177834
+    },
+    {
+     "title": "Decision - Progressive photo import",
+     "entity": "tidepool/decisions/decision-progressive-photo-import",
+     "path": "tidepool/decisions/decision-progressive-photo-import",
+     "file_path": "decisions/Decision - Progressive photo import.md",
+     "project": "",
+     "snippet": "# Decision - Progressive photo import Status: accepted, October 2025. ## Context Importing a 200k-photo library in one pass held the whole manifest in memory and stalled the UI. ## Decision Stream imports in chunks of 500 files: hash, insert, and thumbnail each chunk, then release it. The manifest is a resumable journal (see [[Storage Layer]]). ## Consequences - Peak memory is flat regardless of library size. - Import can resume after a crash; partial imports are visible and repairable. - Progress reporting is chunk-granular rather than file-granular.",
+     "native_score": 0.7198634633440462
+    },
+    {
+     "title": "Roadmap 2026 H1",
+     "entity": "tidepool/concepts/roadmap-2026-h1",
+     "path": "tidepool/concepts/roadmap-2026-h1",
+     "file_path": "concepts/Roadmap 2026 H1.md",
+     "project": "",
+     "snippet": "# Roadmap 2026 H1 Themes for the first half of 2026, agreed in the January planning meeting (see [[2026-01-12 Weekly]]). ## Now - CRDT-based conflict resolution rollout across desktop clients (see [[Decision - CRDT conflict resolution]]). - Streamed import for very large libraries (see [[Decision - Progressive photo import]]). ## Next - Non-destructive photo editing history. - Plugin API for exporters. ## Later / watching - Electron wrapper removal follow-ups (see [[Decision - Abandon the Electron wrapper]]). - Revisiting a web-only companion.",
+     "native_score": 0.686753138623073
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.6399149042780925
+    },
+    {
+     "title": "2026-04 Corrupted thumbnail cache",
+     "entity": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "path": "tidepool/incidents/2026-04-corrupted-thumbnail-cache",
+     "file_path": "incidents/2026-04 Corrupted thumbnail cache.md",
+     "project": "",
+     "snippet": "# 2026-04 Corrupted thumbnail cache Date: April 2026. Severity: low. Owner: Jonas Weber. ## Summary A cache-invalidation bug wrote thumbnails under stale keys after migrations, producing mismatched images in the grid. ## Fix Cache keys now include the schema version; the cache is regenerated on mismatch. No original files were affected (see [[Storage Layer]]).",
+     "native_score": 0.6280054279047089
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "q": "What are the steps before shipping a release?",
+   "accept": [
+    "release checklist"
+   ],
+   "candidates": [
+    {
+     "title": "Release checklist",
+     "entity": "tidepool/guides/release-checklist",
+     "path": "tidepool/guides/release-checklist",
+     "file_path": "guides/Release checklist.md",
+     "project": "",
+     "snippet": "# Release checklist Every release follows these steps. ## Before tagging - [ ] Tests green, including sync convergence tests. - [ ] Storage migrations exercised against a copy of a large library. - [ ] Import hash check runs on a fixture (learned from [[2026-02 Duplicate photos after 0.4.2]]). - [ ] Changelog drafted from merged pull requests. ## After tagging - [ ] Smoke-test import, sync, and thumbnail regeneration. - [ ] Update the roadmap when a theme ships (see [[Roadmap 2026 H1]]). Owners: Jonas (CI), Maya (engine), Priya (communications).",
+     "native_score": 1.1902627688044256
+    },
+    {
+     "title": "2025-08-04 Weekly",
+     "entity": "tidepool/meetings/2025-08-04-weekly",
+     "path": "tidepool/meetings/2025-08-04-weekly",
+     "file_path": "meetings/2025-08-04 Weekly.md",
+     "project": "",
+     "snippet": "# 2025-08-04 Weekly Attendees: Maya, Jonas, Priya. ## Mobile app - Reviewed maintenance load: mobile work is about half of every release. - Maya proposed retiring both native clients; Priya flagged community impact and offered a communications plan. - Decision recorded: [[Decision - Drop the native mobile app]].",
+     "native_score": 0.8978237934429217
+    },
+    {
+     "title": "Decision - Progressive photo import",
+     "entity": "tidepool/decisions/decision-progressive-photo-import",
+     "path": "tidepool/decisions/decision-progressive-photo-import",
+     "file_path": "decisions/Decision - Progressive photo import.md",
+     "project": "",
+     "snippet": "# Decision - Progressive photo import Status: accepted, October 2025. ## Context Importing a 200k-photo library in one pass held the whole manifest in memory and stalled the UI. ## Decision Stream imports in chunks of 500 files: hash, insert, and thumbnail each chunk, then release it. The manifest is a resumable journal (see [[Storage Layer]]). ## Consequences - Peak memory is flat regardless of library size. - Import can resume after a crash; partial imports are visible and repairable. - Progress reporting is chunk-granular rather than file-granular.",
+     "native_score": 0.8727364893182358
+    },
+    {
+     "title": "Run Tidepool locally",
+     "entity": "tidepool/guides/run-tidepool-locally",
+     "path": "tidepool/guides/run-tidepool-locally",
+     "file_path": "guides/Run Tidepool locally.md",
+     "project": "",
+     "snippet": "# Run Tidepool locally Tidepool runs as a local server plus a browser UI. ## Steps 1. Install the package for your platform. 2. Run `tidepool`; it creates a library in `~/Pictures/Tidepool` (see [[Photo library format]]). 3. Open the printed localhost URL. 4. Import photos; large libraries stream in chunks (see [[Decision - Progressive photo import]]). ## Troubleshooting - Thumbnails regenerate automatically if the cache looks wrong (see [[2026-04 Corrupted thumbnail cache]]). - For sync between machines, point both devices at a shared folder.",
+     "native_score": 0.8629833459327346
+    },
+    {
+     "title": "Priya Nair",
+     "entity": "tidepool/people/priya-nair",
+     "path": "tidepool/people/priya-nair",
+     "file_path": "people/Priya Nair.md",
+     "project": "",
+     "snippet": "# Priya Nair Priya Nair leads product and community for Tidepool. She owned the mobile apps until their retirement and writes the weekly notes. ## Focus - [product] Mobile app owner, 2023-2025; ran the sunset communications. - [incident] Fronted the duplicate photos response after v0.4.2. - [community] Runs beta testing and the roadmap process. - [process] Co-maintains the release checklist. ## Relations - relates_to [[Mobile App]] - relates_to [[Roadmap 2026 H1]]",
+     "native_score": 0.8233438496687926
+    },
+    {
+     "title": "Jonas Weber",
+     "entity": "tidepool/people/jonas-weber",
+     "path": "tidepool/people/jonas-weber",
+     "file_path": "people/Jonas Weber.md",
+     "project": "",
+     "snippet": "# Jonas Weber Jonas Weber is a co-maintainer of Tidepool. He owns storage, the SQLite schema, and the import pipeline. ## Contributions - [build] Migrated the library index from flat files to SQLite (June 2025). - [storage] Wrote the photo library format specification. - [incident] Postmortem owner for the November 2025 sync storm. - [incident] Fixed the corrupted thumbnail cache in April 2026. - [infra] Maintains CI and the release checklist. ## Relations - relates_to [[Storage Layer]] - relates_to [[Decision - SQLite over Postgres]]",
+     "native_score": 0.7833537233247708
+    },
+    {
+     "title": "Maya Chen",
+     "entity": "tidepool/people/maya-chen",
+     "path": "tidepool/people/maya-chen",
+     "file_path": "people/Maya Chen.md",
+     "project": "",
+     "snippet": "# Maya Chen Maya Chen is a co-maintainer of Tidepool. She works on the sync engine and conflict resolution, and wrote most of the CRDT design. ## Contributions - [architecture] Designed the operation-log sync protocol. - [decision] Authored the CRDT conflict resolution decision (January 2026). - [decision] Recommended dropping the native mobile app (August 2025). - [incident] Led the response to the duplicate photo reports in February 2026. - [review] Maintains the release checklist. ## Relations - relates_to [[Sync Engine]] - relates_to [[Conflict Resolution]] - relates_to [[Decision - Drop the native mobile app]]",
+     "native_score": 0.7385162044455599
+    },
+    {
+     "title": "Decision - SQLite over Postgres",
+     "entity": "tidepool/decisions/decision-sqlite-over-postgres",
+     "path": "tidepool/decisions/decision-sqlite-over-postgres",
+     "file_path": "decisions/Decision - SQLite over Postgres.md",
+     "project": "",
+     "snippet": "# Decision - SQLite over Postgres Status: accepted, June 2025. ## Context The library index outgrew flat JSON files. Candidates were SQLite (embedded) and Postgres (server). ## Decision Use SQLite, one database per library. ## Rationale - Tidepool is single-user and local-first (see [[Decision - Local-first, no cloud sync]]); a server dependency contradicts the premise. - Backups are a file copy; no daemon, no ports, no credentials. - Full-text and vector search both work in-process, which keeps the sync engine simple. ## Consequences - Concurrent writers rely on WAL mode; multi-process access needs care. - Migrations run at startup and must stay backward compatible for one release.",
+     "native_score": 0.6412509832986829
+    },
+    {
+     "title": "Mobile App",
+     "entity": "tidepool/concepts/mobile-app",
+     "path": "tidepool/concepts/mobile-app",
+     "file_path": "concepts/Mobile App.md",
+     "project": "",
+     "snippet": "# Mobile App Tidepool shipped iOS and Android clients from 2023 to 2025. They were retired in August 2025. ## History - The mobile clients synced through a relay service rather than peer-to-peer. - Maintenance consumed roughly half of the two-person team's release time. - The drop decision and its consequences are recorded in [[Decision - Drop the native mobile app]]. - Priya Nair owned the mobile surface and the community fallout. ## What replaced it - A read-only web gallery for sharing, plus a progressive web app experiment that never shipped. - Mobile sync reliability complaints are collected in [[2025-11 Sync storm]]. ## Relations - relates_to [[Decision - Drop the native mobile app]] - relates_to [[Priya Nair]]",
+     "native_score": 0.6412509832986829
+    },
+    {
+     "title": "Decision - Abandon the Electron wrapper",
+     "entity": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "path": "tidepool/decisions/decision-abandon-the-electron-wrapper",
+     "file_path": "decisions/Decision - Abandon the Electron wrapper.md",
+     "project": "",
+     "snippet": "# Decision - Abandon the Electron wrapper Status: accepted, March 2026. ## Context The desktop shell wrapped the web UI in Electron. Bundle size, native module mismatches, and predictable security review noise kept costing release time. ## Decision Remove the Electron shell. Ship the local web UI as the primary desktop experience; revisit a native shell only if a concrete use case appears. ## Alternatives - Tauri: smaller, but a second toolchain to maintain for a two-person team. - Keep Electron: rejected on maintenance cost. ## Consequences - The installer shrinks; the auto-update path is temporarily manual. - Users who expected a dock icon get a documented browser-based flow.",
+     "native_score": 0.6211838565877986
+    }
+   ]
+  }
+ ]
+}

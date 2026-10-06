@@ -1,0 +1,18 @@
+[
+  {"id": 1, "q": "Why did Tidepool drop its mobile app?", "project": "tidepool", "accept": ["drop the native mobile app"]},
+  {"id": 2, "q": "What database does Tidepool use and why?", "project": "tidepool", "accept": ["sqlite over postgres"]},
+  {"id": 3, "q": "How does Tidepool resolve sync conflicts between devices?", "project": "tidepool", "accept": ["crdt conflict resolution"]},
+  {"id": 4, "q": "Why did the team abandon the Electron wrapper?", "project": "tidepool", "accept": ["abandon the electron wrapper"]},
+  {"id": 5, "q": "What happened during the November 2025 sync storm?", "project": "tidepool", "accept": ["2025-11 sync storm"]},
+  {"id": 6, "q": "Why did duplicate photos appear after version 0.4.2?", "project": "tidepool", "accept": ["duplicate photos after 0.4.2"]},
+  {"id": 7, "q": "What is Tidepool's position on cloud sync?", "project": "tidepool", "accept": ["local-first, no cloud sync"]},
+  {"id": 8, "q": "How does progressive import keep memory usage flat?", "project": "tidepool", "accept": ["progressive photo import"]},
+  {"id": 9, "q": "Who owns the storage layer and import pipeline?", "project": "tidepool", "accept": ["jonas weber"]},
+  {"id": 10, "q": "What caused the corrupted thumbnails in April?", "project": "tidepool", "accept": ["corrupted thumbnail cache"]},
+  {"id": 11, "q": "What approach did the team settle on for edits from two devices?", "project": "tidepool", "accept": ["crdt conflict resolution"]},
+  {"id": 12, "q": "How do I get Tidepool running on a new laptop?", "project": "tidepool", "accept": ["run tidepool locally"]},
+  {"id": 13, "q": "What's planned for the first half of 2026?", "project": "tidepool", "accept": ["roadmap 2026 h1"]},
+  {"id": 14, "q": "Who ran the mobile sunset communications?", "project": "tidepool", "accept": ["priya nair"]},
+  {"id": 15, "q": "What does the photo content hash cover?", "project": "tidepool", "accept": ["photo library format"]},
+  {"id": 16, "q": "What are the steps before shipping a release?", "project": "tidepool", "accept": ["release checklist"]}
+]
