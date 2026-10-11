@@ -31,8 +31,8 @@ jobs:
           set -euo pipefail
           site_dir="$(mktemp -d "${RUNNER_TEMP}/acheron-docs-site.XXXXXX")"
           echo "path=${site_dir}" >> "$GITHUB_OUTPUT"
-          # Opt-in publish list. docs/ also holds internal reviews, scene sources,
-          # build scripts, and explainers pending rebuild with demo data — excluded until allowlisted.
+          # Opt-in publish list. docs/ also holds scene sources, build scripts,
+          # and explainers pending rebuild with demo data — excluded until allowlisted.
           for src in \
             docs/.nojekyll \
             docs/index.html \
