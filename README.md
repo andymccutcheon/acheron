@@ -55,6 +55,14 @@ The storage story: markdown stays the source of truth; the index and the relatio
 derived and rebuildable. The interactive version —
 [`docs/storage-explainer-product-dark.html`](docs/storage-explainer-product-dark.html).
 
+## Documentation site
+
+The `docs/` folder is published as a static site via GitHub Actions (workflow:
+`.github/workflows/docs-pages.yml`). After an operator turns on GitHub Pages for this repository
+with **GitHub Actions** as the source, the operator's guide and interactive explainers will be
+served from the repository's `github.io` URL. Until then, open the HTML files locally or run a
+static server from `docs/`.
+
 ## Quickstart
 
 Prereqs: Python 3.12+, [Basic Memory](https://github.com/basicmachines-co/basic-memory) with a

@@ -159,7 +159,7 @@
 
 <header class="topbar">
   <div class="brand"><span class="mark">A</span> Acheron</div>
-  <span class="ver">v0.2.0</span>
+  <span class="ver">v0.2.1</span>
   <nav>
     <a href="#how">How it works</a>
     <a href="#quickstart">Quickstart</a>
@@ -553,7 +553,7 @@ python3 skills/acheron-memory/scripts/corpus_scan.py links ~/Notes</code></pre>
 <section id="operations">
   <div class="sec-kicker">08 — Operations</div>
   <h2>It runs quietly. Here's how to keep it that way.</h2>
-  <p class="sec-intro">No telemetry, no hosted component, no daemon beyond the storage engine. The operational surface is small on purpose.</p>
+  <p class="sec-intro">No telemetry and no Acheron daemon beyond the storage engine. Optional reranking sends bounded candidate titles and snippets to OpenRouter when a key is configured (<code>ACHERON_PROVIDER=none</code> skips it). The operational surface is small on purpose.</p>
 
   <div class="grid-2">
     <div class="card">

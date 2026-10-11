@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acheron — Documentation</title>
+<style>
+  :root{
+    --bg:#0b0b0f; --panel:#141418; --line:#2a2a31; --ink:#ededef; --ink2:#a1a1aa;
+    --muted:#8a8a93; --teal:#2dd4bf;
+    --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6;
+    max-width:42rem; margin:0 auto; padding:3rem 1.5rem 4rem}
+  h1{font-size:1.75rem; letter-spacing:-.02em; font-weight:650}
+  .lede{color:var(--ink2); margin:1rem 0 2rem}
+  ul{list-style:none; padding:0}
+  li{border:1px solid var(--line); border-radius:12px; background:var(--panel); padding:1.1rem 1.25rem; margin-bottom:.75rem}
+  li a{font-weight:600; color:var(--teal); text-decoration:none}
+  li a:hover{text-decoration:underline; text-underline-offset:3px}
+  li p{color:var(--ink2); font-size:.95rem; margin-top:.35rem}
+  footer{margin-top:2.5rem; font-family:var(--mono); font-size:.75rem; color:var(--muted)}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+  <h1>Acheron</h1>
+  <p class="lede">One MCP server for your agent's memory: consolidate a markdown knowledge base's tools behind a single policy surface, and rerank retrieval so the right note comes first.</p>
+  <ul>
+    <li>
+      <a href="guide.html">Operator's guide</a>
+      <p>Architecture, quickstart, search behavior, tool surface, and day-to-day operations for running Acheron with Basic Memory.</p>
+    </li>
+    <li>
+      <a href="context-search-explainer-product-dark.html">Search path explainer</a>
+      <p>Interactive walkthrough of the eleven-step search path, including the model-failure fallback.</p>
+    </li>
+    <li>
+      <a href="storage-explainer-product-dark.html">Storage path explainer</a>
+      <p>Interactive walkthrough of markdown on disk, the local index, and the relations graph.</p>
+    </li>
+  </ul>
+  <footer><a href="https://github.com/andymccutcheon/acheron">Repository on GitHub</a></footer>
+</body>
+</html>
