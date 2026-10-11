@@ -130,7 +130,7 @@ async def register_proxies(server: FastMCP = mcp, client: BMClient | None = None
 @mcp.tool(
     name="context_search",
     description=(
-        "Search Andy's context library (bookmarks, agent memory, project notes) "
+        "Search the user's context library (notes, saved posts, agent memory) "
         "and return the most relevant passages. Results are ranked by combining "
         "the storage engine's native hybrid search with a System One decision model "
         "(Mercury by default). Accepts the engine's filter parameters (tags, status, "
