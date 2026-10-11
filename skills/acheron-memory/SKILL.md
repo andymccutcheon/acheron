@@ -5,7 +5,7 @@ description: This skill should be used to build and maintain an Acheron knowledg
 
 # Acheron Memory
 
-Build and maintain a knowledge corpus the way Acheron reads it: plain markdown files in watched folders, with wikilinks that become graph edges and frontmatter that makes notes filterable. Acheron does not own the storage — the files do. Every procedure here ends in markdown, whether written through the `write_note` / `edit_note` MCP tools or saved directly into a watched folder. Once a project is indexed, Save a note and your agent can find it in under a minute.
+Build and maintain a knowledge corpus the way Acheron reads it: plain markdown files in watched folders, with wikilinks that become graph edges and frontmatter that makes notes filterable. Acheron does not own the storage — the files do. Every procedure here ends in markdown, whether written through the `write_note` / `edit_note` MCP tools or saved directly into a watched folder. Once a project is indexed, the watcher handles new files automatically. Save a note and your agent can find it in under a minute.
 
 ## Before starting
 

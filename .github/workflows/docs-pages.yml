@@ -26,9 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Stage allowlisted site files
+        id: stage
         run: |
           set -euo pipefail
-          mkdir -p _site
+          site_dir="$(mktemp -d "${RUNNER_TEMP}/acheron-docs-site.XXXXXX")"
+          echo "path=${site_dir}" >> "$GITHUB_OUTPUT"
           # Opt-in publish list. docs/ also holds internal reviews, scene sources,
           # build scripts, and explainers pending rebuild with demo data — excluded until allowlisted.
           for src in \
@@ -38,9 +40,9 @@ jobs:
           do
             test -f "$src"
             case "$src" in
-              docs/.nojekyll) dest=_site/.nojekyll ;;
-              docs/index.html) dest=_site/index.html ;;
-              docs/guide.html) dest=_site/guide.html ;;
+              docs/.nojekyll) dest="${site_dir}/.nojekyll" ;;
+              docs/index.html) dest="${site_dir}/index.html" ;;
+              docs/guide.html) dest="${site_dir}/guide.html" ;;
             esac
             cp "$src" "$dest"
           done
@@ -49,7 +51,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: _site
+          path: ${{ steps.stage.outputs.path }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
