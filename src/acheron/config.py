@@ -11,6 +11,22 @@ PROVIDERS: dict[str, str | None] = {
     "none": None,
 }
 
+# Hard ceilings on caller-controlled rerank work (recommendations 2026-10, H1).
+# Requests and environment overrides are clamped into [1, ceiling]; the ceilings sit
+# well above the current defaults (5, 10) so wider-recall experiments still fit.
+LIMIT_MAX = 25
+CANDIDATES_MAX = 50
+# Bounded rerank timeout (seconds).
+TIMEOUT_MIN, TIMEOUT_MAX = 1.0, 120.0
+
+
+def clamp(value: int, low: int, high: int) -> int:
+    return min(max(value, low), high)
+
+
+def clamp_timeout(value: float) -> float:
+    return min(max(value, TIMEOUT_MIN), TIMEOUT_MAX)
+
 _AUTH_PATH = Path.home() / ".local" / "share" / "opencode" / "auth.json"
 
 
@@ -37,6 +53,7 @@ class Config:
     limit: int = 5
     rrf_k: int = 60
     ranking: str = "auto"
+    timeout: float = 60.0
     openrouter_key: str | None = None
 
     @classmethod
@@ -59,9 +76,10 @@ class Config:
             default_project=os.environ.get("ACHERON_DEFAULT_PROJECT") or None,
             all_projects=os.environ.get("ACHERON_ALL_PROJECTS", "true").lower()
             not in {"false", "0", "no"},
-            candidates=int(os.environ.get("ACHERON_CANDIDATES", "10")),
-            limit=int(os.environ.get("ACHERON_LIMIT", "5")),
+            candidates=clamp(int(os.environ.get("ACHERON_CANDIDATES", "10")), 1, CANDIDATES_MAX),
+            limit=clamp(int(os.environ.get("ACHERON_LIMIT", "5")), 1, LIMIT_MAX),
             rrf_k=int(os.environ.get("ACHERON_RRF_K", "60")),
             ranking=ranking,
+            timeout=clamp_timeout(float(os.environ.get("ACHERON_TIMEOUT", "60"))),
             openrouter_key=openrouter_key(),
         )

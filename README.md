@@ -151,8 +151,9 @@ markdown files when not.
 | `ACHERON_MODEL` | provider default | Override the decision model id |
 | `ACHERON_DEFAULT_PROJECT` | none | Project scope when the caller passes none |
 | `ACHERON_ALL_PROJECTS` | `true` | Search every project when unscoped |
-| `ACHERON_CANDIDATES` | `10` | Native candidates to rerank |
-| `ACHERON_LIMIT` | `5` | Results returned |
+| `ACHERON_CANDIDATES` | `10` | Native candidates to rerank (clamped to 1–50) |
+| `ACHERON_LIMIT` | `5` | Results returned (clamped to 1–25) |
+| `ACHERON_TIMEOUT` | `60` | Rerank call timeout, seconds (clamped to 1–120) |
 | `ACHERON_RANKING` | `auto` | `auto` (Mercury→model, JEV→fuse), `model`, or `fuse` |
 | `ACHERON_RRF_K` | `60` | RRF smoothing constant |
 
@@ -176,6 +177,10 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/local.basic-memory-http.pl
 - **Fail-open vs fail-closed.** The engine treats an enabled reranker as part of the ranking
   contract and returns 503 when it fails. Acheron treats ranking as best-effort: a model
   failure degrades ordering, never availability. Both are defensible; pick per your workload.
+- **Bounded rerank work.** Per-request `limit` and `candidates` and every environment override
+  are clamped into hard ceilings (25 results, 50 candidates), so one call cannot inflate latency,
+  payload size, or provider usage. Candidate text reaches the reranker as untrusted evidence, and
+  transport or invalid-body failures from the decision API fall open like any ranking failure.
 - **Fold, don't rename.** Proxied tools keep the engine's names — a rename map costs
   maintenance and fights upstream docs. Only the duplicate search verb is folded, because two
   search tools is a per-turn decision tax.
@@ -189,11 +194,11 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/local.basic-memory-http.pl
 ## Development
 
 ```sh
-uv run pytest                     # 24 tests
+uv run pytest                     # 30 tests
 uv run python eval/demo/build_corpus.py   # regenerate the synthetic corpus
 ```
 
 ## Status
 
-v0.2.0, MIT. Reference implementation: no support promise, no maintenance guarantee. Issues and
+v0.2.1, MIT. Reference implementation: no support promise, no maintenance guarantee. Issues and
 pull requests are welcome best-effort. The demo corpus is synthetic; no personal data ships here.

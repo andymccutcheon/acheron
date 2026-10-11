@@ -5,7 +5,7 @@ from mcp.types import CallToolResult, TextContent, Tool
 
 from acheron import server
 from acheron.bm import BMError
-from acheron.config import Config
+from acheron.config import CANDIDATES_MAX, LIMIT_MAX, Config
 
 NOTE_SCHEMA = {
     "properties": {
@@ -162,6 +162,27 @@ async def test_no_query_and_no_filters_asks_for_one(monkeypatch):
     out = json.loads(await server.context_search())
     assert "query" in out["error"].lower()
     assert engine.calls == []
+
+
+async def test_oversized_requests_clamp_to_the_hard_ceiling(monkeypatch):
+    engine = FakeEngine()
+    use_engine(monkeypatch, engine)
+    await server.context_search(query="x", limit=10_000, candidates=10_000)
+    assert engine.calls[0][2]["page_size"] == CANDIDATES_MAX
+
+
+async def test_zero_and_negative_requests_clamp_to_one(monkeypatch):
+    engine = FakeEngine()
+    use_engine(monkeypatch, engine)
+    await server.context_search(query="x", limit=-5, candidates=0)
+    assert engine.calls[0][2]["page_size"] == 1
+
+
+async def test_filter_only_page_size_is_clamped(monkeypatch):
+    engine = FakeEngine(payload={"results": [], "count": 0})
+    use_engine(monkeypatch, engine)
+    await server.context_search(tags=["ai"], limit=10_000)
+    assert engine.calls[0][2]["page_size"] == LIMIT_MAX
 
 
 async def test_engine_down_returns_a_clean_product_error(monkeypatch):
