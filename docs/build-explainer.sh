@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
-# Rebuild an explainer (product-dark, main scenario only) and patch it to autoplay.
-# Usage: build-explainer.sh [scene-basename]   (default: context-search-explainer)
-# Requires the visual-explainer skill; override its location with VISUAL_EXPLAINER_SKILL.
+# Rebuild both explainers in pattern and pattern-dark (posters, stills, MP4, steps JSON).
+# Usage: ./build-explainer.sh
+# Requires visual-explainer; override with VISUAL_EXPLAINER_SKILL.
 set -euo pipefail
 cd "$(dirname "$0")"
 SKILL="${VISUAL_EXPLAINER_SKILL:-$HOME/.agents/skills/visual-explainer}"
-SCENE="${1:-context-search-explainer}"
-HTML="$SCENE-product-dark.html"
+RENDER_FLAGS=(--poster --final-still --steps-json)
+SCENES=(context-search-explainer storage-explainer)
+THEMES=(pattern pattern-dark)
 
-python3 "$SKILL/scripts/build.py" "$SCENE.scene.js" --theme product-dark
+for scene in "${SCENES[@]}"; do
+  for theme in "${THEMES[@]}"; do
+    python3 "$SKILL/scripts/build.py" "$scene.scene.js" --theme "$theme"
+    bash "$SKILL/scripts/run.sh" render.py "$scene.scene.js" --theme "$theme" "${RENDER_FLAGS[@]}"
+  done
+done
 
-python3 - "$HTML" <<'PY'
-import sys
-
-p = sys.argv[1]
-s = open(p, encoding="utf-8").read()
-old = 'if(qs.has("autoplay")){ render(0); setPlay(true); }'
-assert s.count(old) == 1, "autoplay hook not found; the core library may have changed"
-open(p, "w", encoding="utf-8").write(s.replace(old, 'if(true){ render(0); setPlay(true); }'))
-print("autoplay enabled")
-PY
-
-echo "built $HTML"
-echo "export the README GIF with: bash $SKILL/scripts/run.sh render.py $HTML --gif"
+echo "built ${#SCENES[@]} scenes × ${#THEMES[@]} themes in $(pwd)"

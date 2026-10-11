@@ -1,0 +1,66 @@
+{
+  "title": "How files become a knowledge graph",
+  "kicker": "STORAGE // RELATIONS",
+  "note": "Traced file: concepts/Sync Engine.md. Outgoing wikilinks shown as graph edges.",
+  "intro": {
+    "title": "One note, from file to graph",
+    "text": "Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or add ?autoplay to the URL."
+  },
+  "scenarios": [
+    {
+      "label": "Sync Engine joins the graph",
+      "steps": [
+        {
+          "n": 1,
+          "title": "Plain files, one library",
+          "caption": "Twenty-three notes in six folders make up the Tidepool demo library. The database is only an index over these markdown files."
+        },
+        {
+          "n": 2,
+          "title": "A note on disk",
+          "caption": "Writing a file is the whole write path. This scene traces concepts/Sync Engine.md from the demo corpus."
+        },
+        {
+          "n": 3,
+          "title": "The watcher queues it",
+          "caption": "The file watcher picks up changes and queues indexing. Save a note and your agent can find it in under a minute."
+        },
+        {
+          "n": 4,
+          "title": "Parsed into an entity",
+          "caption": "The parser reads frontmatter, tags, and wikilinks. The note gets a stable permalink in the local SQLite index."
+        },
+        {
+          "n": 5,
+          "title": "Links become edges",
+          "caption": "Each [[wikilink]] in Sync Engine.md resolves to a relation. Three outgoing links shown here: Conflict Resolution, Storage Layer, and 2025-11 Sync storm."
+        },
+        {
+          "n": 6,
+          "title": "A graph you can walk",
+          "caption": "Proxied tools such as build_context return a note plus its neighborhood. One hop is enough to see related decisions and incidents."
+        },
+        {
+          "n": 7,
+          "title": "The index is disposable",
+          "caption": "Delete the SQLite index and rebuild from files. Markdown stays canonical; the graph stays derived."
+        },
+        {
+          "n": 8,
+          "title": "One MCP surface",
+          "caption": "One MCP server fronts ranked search, graph walks, and every engine tool discovered at startup."
+        },
+        {
+          "n": 9,
+          "title": "Two read paths",
+          "caption": "context_search reads by similarity; build_context walks links. Both hit the same index underneath."
+        },
+        {
+          "n": 10,
+          "title": "Files in, knowledge out",
+          "caption": "The demo library compounds one markdown file at a time: searchable, linked, and current for agents."
+        }
+      ]
+    }
+  ]
+}

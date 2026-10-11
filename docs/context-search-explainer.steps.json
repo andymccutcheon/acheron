@@ -1,0 +1,71 @@
+{
+  "title": "How a question becomes a ranked answer",
+  "kicker": "CONTEXT // SEARCH PATH",
+  "note": "Decision scores on screen are illustrative. Benchmark top-1 counts from README (16 questions, 23-note corpus).",
+  "intro": {
+    "title": "One query through the context layer",
+    "text": "Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or add ?autoplay to the URL."
+  },
+  "scenarios": [
+    {
+      "label": "Mobile sunset question",
+      "steps": [
+        {
+          "n": 1,
+          "title": "The demo corpus, indexed",
+          "caption": "Twenty-three markdown notes for a fictional photo-sync project, grouped by folder. Basic Memory keeps a local hybrid index over them and refreshes when files change."
+        },
+        {
+          "n": 2,
+          "title": "A question arrives",
+          "caption": "Any agent calls the one first-party tool, context_search. Every other storage tool stays proxied under its engine name."
+        },
+        {
+          "n": 3,
+          "title": "Hybrid search on the engine",
+          "caption": "Acheron forwards search_notes to the long-running Basic Memory service. Candidates come from the engine's native hybrid search, not from the decision model."
+        },
+        {
+          "n": 4,
+          "title": "Ten candidates return",
+          "caption": "Up to ten notes return with paths and snippets. The right answer is usually already in the list; reranking only reorders."
+        },
+        {
+          "n": 5,
+          "title": "The model scores each note",
+          "caption": "When an OpenRouter key is set, Mercury Decide scores each candidate on usefulness. Note text is untrusted evidence, not instructions."
+        },
+        {
+          "n": 6,
+          "title": "Scores return",
+          "caption": "Scores are ordering signal. They do not change which notes were retrieved."
+        },
+        {
+          "n": 7,
+          "title": "Model order wins",
+          "caption": "In auto mode with Mercury, model order wins. On the published benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16."
+        },
+        {
+          "n": 8,
+          "title": "Results reach the agent",
+          "caption": "The response lists ranked notes with paths and snippets so the agent can open the winner. One call, no search loop."
+        },
+        {
+          "n": 9,
+          "title": "When the model rate-limits",
+          "caption": "A 429 from the Decisions API is a reranker failure, not a storage outage. Acheron does not pretend the engine survived an outage."
+        },
+        {
+          "n": 10,
+          "title": "One retry",
+          "caption": "The client waits, then retries once on 429 or 5xx. A persistent outage still fails open after that."
+        },
+        {
+          "n": 11,
+          "title": "Native order, fallback true",
+          "caption": "If the model stays down, results keep native hybrid order. The response sets fallback: true and ranking: native. Recall stays; ordering weakens."
+        }
+      ]
+    }
+  ]
+}
