@@ -223,7 +223,7 @@
 
 <div class="stats">
   <div class="stat"><div class="n">25 tools</div><div class="l">1 search verb + 24 proxied, one surface</div></div>
-  <div class="stat"><div class="n">~30 s</div><div class="l">from file on disk to searchable</div></div>
+  <div class="stat"><div class="n">&lt;1 min</div><div class="l">Save a note and your agent can find it in under a minute.</div></div>
   <div class="stat"><div class="n">Fail-open</div><div class="l">model down ≠ retrieval down</div></div>
   <div class="stat"><div class="n">MIT</div><div class="l">local-first, replayable benchmark</div></div>
 </div>
@@ -268,7 +268,7 @@
       <line x1="480" y1="125" x2="552" y2="125" stroke="#3f3f46" stroke-width="1.4" marker-end="url(#arw)"/>
       <line x1="760" y1="125" x2="832" y2="125" stroke="#3f3f46" stroke-width="1.4" marker-end="url(#arw)"/>
       <path d="M 900 164 C 900 210 380 210 380 182" fill="none" stroke="#2dd4bf" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arw)"/>
-      <text class="sv-label" x="620" y="228" text-anchor="middle">watch: new and changed files are re-indexed in seconds</text>
+      <text class="sv-label" x="620" y="228" text-anchor="middle">watch: Save a note and your agent can find it in under a minute.</text>
       <text class="sv-label" x="380" y="66" text-anchor="middle">one door for every agent</text>
     </svg>
   </div>
@@ -284,7 +284,7 @@
     </div>
   </div>
 
-  <p style="margin-top:26px" class="muted">Prefer motion? Two scrubbable explainers walk the same paths: <a href="context-search-explainer-product-dark.html">the eleven-step search path</a> (including the model-failure fallback) and <a href="storage-explainer-product-dark.html">the storage layer</a> (file → index → relations graph).</p>
+  <p style="margin-top:26px" class="muted">Prefer motion? Two scrubbable explainers walk the same paths: <a href="https://github.com/andymccutcheon/acheron/blob/main/docs/context-search-explainer-product-dark.html">the eleven-step search path</a> (including the model-failure fallback) and <a href="https://github.com/andymccutcheon/acheron/blob/main/docs/storage-explainer-product-dark.html">the storage layer</a> (file → index → relations graph).</p>
 </section>
 
 <!-- ================= QUICKSTART ================= -->
@@ -444,7 +444,7 @@ bm status                           # confirm: "indexed and settled"</code></pre
     </div>
     <div class="card">
       <h3>Watcher behavior, verified</h3>
-      <p>After a project's first index pass, new and changed files are re-indexed within about 30 seconds — no sync command, no export step. Files that arrive <em>before</em> that first pass need one <code>bm project index &lt;name&gt;</code> to catch up; reruns are safe.</p>
+      <p>After a project's first index pass, new and changed files are picked up automatically — no sync command, no export step. Save a note and your agent can find it in under a minute. Files that arrive <em>before</em> that first pass need one <code>bm project index &lt;name&gt;</code> to catch up; reruns are safe.</p>
       <div class="cmd"><pre><code>bm project add work ~/Work/notes
 bm project add home ~/Vault
 bm project index work</code></pre></div>
@@ -553,7 +553,7 @@ python3 skills/acheron-memory/scripts/corpus_scan.py links ~/Notes</code></pre>
 <section id="operations">
   <div class="sec-kicker">08 — Operations</div>
   <h2>It runs quietly. Here's how to keep it that way.</h2>
-  <p class="sec-intro">No telemetry and no Acheron daemon beyond the storage engine. Optional reranking sends bounded candidate titles and snippets to OpenRouter when a key is configured (<code>ACHERON_PROVIDER=none</code> skips it). The operational surface is small on purpose.</p>
+  <p class="sec-intro">No telemetry and no Acheron daemon beyond the storage engine. By default, when Acheron finds an OpenRouter key (the <code>OPENROUTER_API_KEY</code> variable or OpenCode's stored key), each reranked search sends your query and each candidate's title and snippet to OpenRouter, capped at 500 characters for the query, 200 per title and 500 per snippet. Set <code>ACHERON_PROVIDER=none</code> to keep search fully local. The operational surface is small on purpose.</p>
 
   <div class="grid-2">
     <div class="card">
@@ -599,7 +599,7 @@ launchctl kickstart -k gui/$(id -u)/local.basic-memory-http   # restart</code></
         <tr>
           <td>New files not searchable</td>
           <td>Project never had its first index pass, so the watcher isn't tracking it</td>
-          <td><code>bm project index &lt;name&gt;</code> once; thereafter changes appear in ~30 s</td>
+          <td><code>bm project index &lt;name&gt;</code> once; thereafter wait under a minute before searching for new files</td>
         </tr>
         <tr>
           <td>Results look unordered</td>
@@ -666,7 +666,7 @@ bm orphans                       # notes with no relations — wiring opportunit
 
 <footer>
   <div><strong style="color:var(--ink)">Acheron</strong> — one surface over a markdown knowledge base. MIT. Reference implementation, best-effort support.</div>
-  <div><a href="https://github.com/andymccutcheon/acheron">Repository</a> · <a href="context-search-explainer-product-dark.html">Search explainer</a> · <a href="storage-explainer-product-dark.html">Storage explainer</a></div>
+  <div><a href="https://github.com/andymccutcheon/acheron">Repository</a> · <a href="https://github.com/andymccutcheon/acheron/blob/main/docs/context-search-explainer-product-dark.html">Search explainer</a> · <a href="https://github.com/andymccutcheon/acheron/blob/main/docs/storage-explainer-product-dark.html">Storage explainer</a></div>
 </footer>
 
 </main>

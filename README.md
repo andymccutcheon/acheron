@@ -57,11 +57,13 @@ derived and rebuildable. The interactive version —
 
 ## Documentation site
 
-The `docs/` folder is published as a static site via GitHub Actions (workflow:
-`.github/workflows/docs-pages.yml`). After an operator turns on GitHub Pages for this repository
-with **GitHub Actions** as the source, the operator's guide and interactive explainers will be
-served from the repository's `github.io` URL. Until then, open the HTML files locally or run a
-static server from `docs/`.
+The `docs/` folder can be published as a static site via GitHub Actions (workflow:
+`.github/workflows/docs-pages.yml`). The workflow copies an explicit allowlist into a staging
+directory before deploy — currently `index.html`, `guide.html`, and `.nojekyll` only. Interactive
+explainers and other files under `docs/` stay in the repository but are not published until they
+are added to that list. After an operator turns on GitHub Pages with **GitHub Actions** as the
+source, the allowlisted pages will be served from the repository's `github.io` URL. Until then,
+open the HTML files locally or run a static server from `docs/`.
 
 ## Quickstart
 

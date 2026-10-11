@@ -25,12 +25,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Stage allowlisted site files
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Opt-in publish list. docs/ also holds internal reviews, scene sources,
+          # build scripts, and explainers pending rebuild with demo data — excluded until allowlisted.
+          for src in \
+            docs/.nojekyll \
+            docs/index.html \
+            docs/guide.html
+          do
+            test -f "$src"
+            case "$src" in
+              docs/.nojekyll) dest=_site/.nojekyll ;;
+              docs/index.html) dest=_site/index.html ;;
+              docs/guide.html) dest=_site/guide.html ;;
+            esac
+            cp "$src" "$dest"
+          done
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: docs
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

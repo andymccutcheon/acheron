@@ -26,7 +26,7 @@ Goal: turn a folder of existing files into a corpus that is indexed, linked, and
    - CLI: `bm project add <name> <path>`
 
    When possible, put the files in place before registering.
-3. Catch up and confirm. If files arrived after registration, or a `context_search` for two known strings returns nothing, run `bm project index <name>` and re-check. Verified behavior: a freshly registered project did not pick up post-registration files on its own, while after one index pass, later file drops were watched live within about 30 seconds. `bm project index` rebuilds search and embeddings and is safe to rerun.
+3. Catch up and confirm. If files arrived after registration, or a `context_search` for two known strings returns nothing, run `bm project index <name>` and re-check. A freshly registered project does not pick up post-registration files on its own; after one index pass, later file drops are watched automatically. Save a note and your agent can find it in under a minute. `bm project index` rebuilds search and embeddings and is safe to rerun.
 4. Do not bulk-edit during import. Import first, enrich second — a failed enrichment then leaves a working corpus, not a broken one.
 
 ## Phase 2 — Enrich in batches
