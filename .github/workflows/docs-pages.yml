@@ -36,13 +36,17 @@ jobs:
           for src in \
             docs/.nojekyll \
             docs/index.html \
-            docs/guide.html
+            docs/guide.html \
+            docs/context-search-explainer-pattern-dark.html \
+            docs/storage-explainer-pattern-dark.html
           do
             test -f "$src"
             case "$src" in
               docs/.nojekyll) dest="${site_dir}/.nojekyll" ;;
               docs/index.html) dest="${site_dir}/index.html" ;;
               docs/guide.html) dest="${site_dir}/guide.html" ;;
+              docs/context-search-explainer-pattern-dark.html) dest="${site_dir}/context-search-explainer-pattern-dark.html" ;;
+              docs/storage-explainer-pattern-dark.html) dest="${site_dir}/storage-explainer-pattern-dark.html" ;;
             esac
             cp "$src" "$dest"
           done

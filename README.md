@@ -14,12 +14,11 @@ System One decision model — with native-order fallback when the model is unava
 This is a reference implementation, not a product. The pattern is the point; the code is small
 enough to read in an afternoon.
 
-![The Acheron search path: a question travels from the agent through Acheron and Basic Memory to a ranked answer, including the model-failure fallback](docs/context-search-explainer-product-dark.gif)
+![The Acheron search path: a question travels from the agent through Acheron and Basic Memory to a ranked answer, including the model-failure fallback](docs/context-search-explainer-pattern-dark-poster.png)
 
 The animation is the eleven-step search path, including the model-failure fallback. For the
 interactive version — play, pause, scrub, step through — open
-[`docs/context-search-explainer-product-dark.html`](docs/context-search-explainer-product-dark.html)
-in a browser after cloning (GitHub serves HTML files as source).
+[`context-search-explainer-pattern-dark.html`](https://andymccutcheon.github.io/acheron/context-search-explainer-pattern-dark.html).
 
 ## Why
 
@@ -49,21 +48,21 @@ Agents wired to a personal knowledge base hit two problems:
 - **Any model.** Mercury Decide (free tier via OpenRouter) by default; Jev behind a flag;
   `provider: none` for fully local retrieval.
 
-![The Acheron storage path: a markdown note lands in a watched folder, is parsed into the local index, and its wikilinks become edges in a graph that queries can walk](docs/storage-explainer-product-dark.gif)
+![The Acheron storage path: a markdown note lands in a watched folder, is parsed into the local index, and its wikilinks become edges in a graph that queries can walk](docs/storage-explainer-pattern-dark-poster.png)
 
 The storage story: markdown stays the source of truth; the index and the relations graph are
 derived and rebuildable. The interactive version —
-[`docs/storage-explainer-product-dark.html`](docs/storage-explainer-product-dark.html).
+[`storage-explainer-pattern-dark.html`](https://andymccutcheon.github.io/acheron/storage-explainer-pattern-dark.html).
 
 ## Documentation site
 
 The `docs/` folder can be published as a static site via GitHub Actions (workflow:
 `.github/workflows/docs-pages.yml`). The workflow copies an explicit allowlist into a staging
-directory before deploy — currently `index.html`, `guide.html`, and `.nojekyll` only. Interactive
-explainers and other files under `docs/` stay in the repository but are not published until they
-are added to that list. After an operator turns on GitHub Pages with **GitHub Actions** as the
-source, the allowlisted pages will be served from the repository's `github.io` URL. Until then,
-open the HTML files locally or run a static server from `docs/`.
+directory before deploy. It publishes `index.html`, `guide.html`, `.nojekyll`, and the two dark
+interactive explainers. The explainers are served at
+`https://andymccutcheon.github.io/acheron/context-search-explainer-pattern-dark.html` and
+`https://andymccutcheon.github.io/acheron/storage-explainer-pattern-dark.html`; other files under
+`docs/` remain repository-only unless they are added to the allowlist.
 
 ## Quickstart
 
