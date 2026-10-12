@@ -18,10 +18,15 @@ html,body{margin:0}
 #stepTag{position:absolute;right:40px;top:14px}
 #controls{display:flex;gap:8px;align-items:center;padding:12px 40px 18px;flex-wrap:wrap}
 #scrub{flex:1;min-width:180px}
+/* reduced motion: the hint row carries a sentence, so the scrubber gives up width rather than letting the row wrap */
+html[data-motion=reduce] #scrub{min-width:96px}
 #dots{display:flex;gap:4px}
 #dots span{width:14px;height:6px;cursor:pointer}
 body.capture #controls{display:none}
 button:disabled{opacity:.45;cursor:not-allowed}
+[hidden]{display:none!important}
+/* keyboard focus: one styled ring in the theme's active colour (--focus is set from C.active), never the browser default */
+button:focus-visible,select:focus-visible,#scrub:focus-visible{outline:2px solid var(--focus,currentColor);outline-offset:3px}
 </style>
 <style id="theme-css">
 /* pattern theme: the Design System Pattern look (light by default; html[data-mode=dark] = pattern-dark). Values from design-studio 085489b. */
@@ -63,8 +68,8 @@ text{font-family:var(--sans)}
 #stepTag{display:none}
 #controls{background:var(--panel)}
 button,select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:-.006em;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:background .2s cubic-bezier(.16,1,.3,1)}
-#bPlay{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-button:hover{background:var(--chip)} #bPlay:hover{opacity:.88;background:var(--ink)}
+#bPlay,html[data-motion=reduce] #bNext{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+button:hover{background:var(--chip)} #bPlay:hover,html[data-motion=reduce] #bNext:hover{opacity:.88;background:var(--ink)}
 #scrub{accent-color:var(--act)}
 #dots span{background:var(--line);height:4px;border-radius:2px} #dots span.done{background:var(--muted)} #dots span.cur{background:var(--act)}
 .kbd{font-family:var(--sans);font-size:12px;color:var(--muted)}
@@ -105,7 +110,7 @@ button:hover{background:var(--chip)} #bPlay:hover{opacity:.88;background:var(--i
   <select id="scenario"></select>
   <input id="scrub" type="range" min="0" max="1000" value="0">
   <div id="dots"></div>
-  <span class="kbd">SPACE · ← →</span>
+  <span class="kbd" id="hint">Space · ← →</span>
 </div>
 </div>
 <script>
@@ -224,7 +229,7 @@ THEME_DEF={
   bgOpacity:1,
   // flat stage: no shadow, no blur, no radial glow, no dot grid. Only the faint top wash used by the active card is defined.
   background(){ const d=$("defs"), L=$("bgLayer");
-    const ag=el("linearGradient",{id:"ptAct",x1:0,y1:0,x2:0,y2:1},d); el("stop",{offset:0,"stop-color":C.active,"stop-opacity":PT_DARK?.16:.08},ag); el("stop",{offset:.7,"stop-color":C.active,"stop-opacity":0},ag);
+    const ag=el("linearGradient",{id:"ptAct",x1:0,y1:0,x2:0,y2:1},d); el("stop",{offset:0,"stop-color":C.active,"stop-opacity":PT_DARK?.14:.08},ag); el("stop",{offset:.7,"stop-color":C.active,"stop-opacity":0},ag);
     return el("g",{},L); },
   box(g,x,y,w,h,{chip}={}){ const r=el("rect",{x:x+.5,y:y+.5,width:w-1,height:h-1,rx:chip?(h-1)/2:8,fill:"none",stroke:C.line,"stroke-width":1},g);
     return {els:[r], set(stroke,fill){ const idle=stroke===C.line;
@@ -290,12 +295,13 @@ THEME_DEF={
    End-of-step state: if(p>=1) ...   Globals in steps: S (scenario), T (time), stepLive
    Player (window.explainer): duration, seek(t), setScenario(i), steps, scenarios, audit(), overview(), transcript(), reducedMotion
      Autoplay only with ?autoplay in the URL. Under prefers-reduced-motion: reduce the page loads paused on the overview, ignores
-     ?autoplay, never plays, and draws every step in its finished state (step, scrub and arrow keys still work).
+     ?autoplay, never plays, and draws every step in its finished state (step, scrub and arrow keys still work). The Play button
+     and the speed menu are hidden, the hint row says why in visible text, and "Step ›" becomes the primary control.
 ============================================================================================= */
 TH=Object.assign({},DEFAULT_THEME,THEME_DEF);
 TH.tokens=Object.assign({},DEFAULT_THEME.tokens,THEME_DEF.tokens||{});
 TH.packet=Object.assign({},DEFAULT_THEME.packet,THEME_DEF.packet||{}); TH.label=Object.assign({},DEFAULT_THEME.label,THEME_DEF.label||{});
-C=Object.assign({},TH.tokens); Object.assign(C,{cyan:C.request,cream:C.data,orange:C.active,standby:C.dim,grey:C.tagIdle});
+C=Object.assign({},TH.tokens); document.documentElement.style.setProperty("--focus",C.active); Object.assign(C,{cyan:C.request,cream:C.data,orange:C.active,standby:C.dim,grey:C.tagIdle});
 if(!C.fail) C.fail=C.active;  // themes without a separate failure colour keep drawing failures in the active colour
 document.documentElement.dataset.theme=TH.name;
 const RESETS=[], onReset=f=>RESETS.push(f);
@@ -472,8 +478,10 @@ function overview(){ setPlay(false); SETTLED=true; try{ render(0); } finally{ SE
 // step titles and captions as plain data, per scenario, so a host page can print them as text (theme-independent)
 function transcript(){ const keep=S; try{ return { title:SCENE.title, kicker:SCENE.kicker||"", note:SCENE.note||"", intro:{title:SCENE.introTitle||INTRO_TITLE, text:SCENE.introText||INTRO_TEXT},
     scenarios:SCENARIOS.map(sc=>{ S=sc; return {label:sc.label, steps:STEPS.map((s,i)=>({n:i+1, title:s.t, caption:s.x()}))}; }) }; } finally{ S=keep; } }
-function motionPref(){ const r=reduced(), b=$("bPlay"); document.documentElement.dataset.motion=r?"reduce":"full"; b.disabled=r;
-  b.title=r?"Playback is off because your system asks for reduced motion. Use the Step buttons or the arrow keys.":"Play / pause (Space)"; }
+const HINT_FULL="Space · ← →", HINT_REDUCED="Reduced motion: playback is off. Use Step or ← →.";
+function motionPref(){ const r=reduced(), b=$("bPlay"); document.documentElement.dataset.motion=r?"reduce":"full"; b.disabled=r; b.hidden=r; $("speed").hidden=r;
+  // the reason is visible text in the hint row, not a tooltip: keyboard and touch readers never see a title
+  $("hint").textContent=r?HINT_REDUCED:HINT_FULL; }
 function gotoStep(i){ setPlay(false); i=clamp(i,0,STEPS.length-1); render(STARTS[i]+STEPS[i].d-0.0001); }
 function setScenario(i){ S=SCENARIOS[i]; $("scenario").value=i; if(REF.scLbl) REF.scLbl.textContent=S.label; render(T<BOOT?home():T); }
 function start(){
@@ -506,6 +514,14 @@ window.addEventListener("DOMContentLoaded",()=>{ const faces=(TH.fontsToLoad||[]
 <script id="scene">
 // ===== SCENE START =====
 const THEME = "pattern";
+// Preserve tool identifiers and the engine name after theme sentence casing.
+for (const key of ["titleCase", "pillFmt", "labelFmt"]) {
+  const format = TH[key];
+  TH[key] = value => format(value)
+    .replace(/\bcontext_search\b/gi, "context_search")
+    .replace(/\bbuild_context\b/gi, "build_context")
+    .replace(/\bbasic memory\b/gi, "Basic Memory");
+}
 const SCENE={
   title:"How a question becomes a ranked answer",
   code:"EXPLAINER 03", kicker:"CONTEXT // SEARCH PATH",
@@ -513,7 +529,7 @@ const SCENE={
   crosshairs:[],
   legend:[["REQUEST",C.request],["RESULT / DATA",C.data],["ACTIVE",C.active],["FAILED",C.fail]],
   introTitle:"One query through the context layer",
-  introText:"Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or add ?autoplay to the URL.",
+  introText:"Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or use the playback controls.",
 };
 const FOLDERS=["concepts · 5","decisions · 6","guides · 3","incidents · 3","meetings · 3","people · 3"];
 const SCENARIOS=[
@@ -541,14 +557,14 @@ function buildScene(){
   R.rst=dynText("router",496,160,"body2",{maxW:298});
   R.cand=[0,1,2,3].map(i=>slot("router",496,176+i*28,298,24));
 
-  panel("bm",{x:900,y:96,w:300,h:150,code:"S-01",title:"BASIC MEMORY",chip:"WATCHING"});
+  panel("bm",{x:900,y:96,w:300,h:150,code:"S-01",title:"Basic Memory",chip:"WATCHING"});
   icon("bm","db",1168,196,0.8);
   text("bm",916,150,"HTTP MCP · hybrid search","body2",{maxW:230});
   text("bm",916,172,"SQLite index · file watcher","body2",{maxW:230});
   text("bm",916,194,"findable in under a minute","body2",{maxW:230});
   panel("dec",{x:900,y:290,w:300,h:150,code:"S-02",title:"DECISION MODEL",chip:"STANDBY"});
   text("dec",916,344,"OpenRouter · Mercury Decide","body2",{maxW:268});
-  text("dec",916,366,"scores candidates 0–3","body2",{maxW:268});
+  text("dec",916,366,"scores candidates 0 to 3","body2",{maxW:268});
   R.scores=dynText("dec",916,392,"out",{maxW:268});
 
   panel("lib",{x:480,y:470,w:720,h:120,code:"L-01",title:"TIDEPOOL DEMO LIBRARY",chip:"23 NOTES"});
@@ -592,7 +608,7 @@ const STEPS=[
     packet(0,[["d2r",0]],sub(p,0,.5),"res","SCORES");
     R.scores.set(S.scores.join(" · "));
     if(p>.5){ setChip("dec","DONE","done"); setActive("router"); } else setActive("dec"); }},
- {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
+ {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, 23 synthetic notes, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
   a:p=>{ R.ans[0].show("1 · "+S.winner,C.data,sub(p,.1,.4));
     R.ans[1].show("9 other candidates reordered",C.lineHi,sub(p,.25,.55));
     R.ans[2].show("Only the winner's rank is evidenced",C.lineHi,sub(p,.4,.7));

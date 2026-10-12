@@ -18,10 +18,15 @@ html,body{margin:0}
 #stepTag{position:absolute;right:40px;top:14px}
 #controls{display:flex;gap:8px;align-items:center;padding:12px 40px 18px;flex-wrap:wrap}
 #scrub{flex:1;min-width:180px}
+/* reduced motion: the hint row carries a sentence, so the scrubber gives up width rather than letting the row wrap */
+html[data-motion=reduce] #scrub{min-width:96px}
 #dots{display:flex;gap:4px}
 #dots span{width:14px;height:6px;cursor:pointer}
 body.capture #controls{display:none}
 button:disabled{opacity:.45;cursor:not-allowed}
+[hidden]{display:none!important}
+/* keyboard focus: one styled ring in the theme's active colour (--focus is set from C.active), never the browser default */
+button:focus-visible,select:focus-visible,#scrub:focus-visible{outline:2px solid var(--focus,currentColor);outline-offset:3px}
 </style>
 <style id="theme-css">
 /* pattern theme: the Design System Pattern look (light by default; html[data-mode=dark] = pattern-dark). Values from design-studio 085489b. */
@@ -63,8 +68,8 @@ text{font-family:var(--sans)}
 #stepTag{display:none}
 #controls{background:var(--panel)}
 button,select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:-.006em;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:background .2s cubic-bezier(.16,1,.3,1)}
-#bPlay{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-button:hover{background:var(--chip)} #bPlay:hover{opacity:.88;background:var(--ink)}
+#bPlay,html[data-motion=reduce] #bNext{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+button:hover{background:var(--chip)} #bPlay:hover,html[data-motion=reduce] #bNext:hover{opacity:.88;background:var(--ink)}
 #scrub{accent-color:var(--act)}
 #dots span{background:var(--line);height:4px;border-radius:2px} #dots span.done{background:var(--muted)} #dots span.cur{background:var(--act)}
 .kbd{font-family:var(--sans);font-size:12px;color:var(--muted)}
@@ -105,7 +110,7 @@ button:hover{background:var(--chip)} #bPlay:hover{opacity:.88;background:var(--i
   <select id="scenario"></select>
   <input id="scrub" type="range" min="0" max="1000" value="0">
   <div id="dots"></div>
-  <span class="kbd">SPACE · ← →</span>
+  <span class="kbd" id="hint">Space · ← →</span>
 </div>
 </div>
 <script>
@@ -225,7 +230,7 @@ THEME_DEF={
   bgOpacity:1,
   // flat stage: no shadow, no blur, no radial glow, no dot grid. Only the faint top wash used by the active card is defined.
   background(){ const d=$("defs"), L=$("bgLayer");
-    const ag=el("linearGradient",{id:"ptAct",x1:0,y1:0,x2:0,y2:1},d); el("stop",{offset:0,"stop-color":C.active,"stop-opacity":PT_DARK?.16:.08},ag); el("stop",{offset:.7,"stop-color":C.active,"stop-opacity":0},ag);
+    const ag=el("linearGradient",{id:"ptAct",x1:0,y1:0,x2:0,y2:1},d); el("stop",{offset:0,"stop-color":C.active,"stop-opacity":PT_DARK?.14:.08},ag); el("stop",{offset:.7,"stop-color":C.active,"stop-opacity":0},ag);
     return el("g",{},L); },
   box(g,x,y,w,h,{chip}={}){ const r=el("rect",{x:x+.5,y:y+.5,width:w-1,height:h-1,rx:chip?(h-1)/2:8,fill:"none",stroke:C.line,"stroke-width":1},g);
     return {els:[r], set(stroke,fill){ const idle=stroke===C.line;
@@ -291,12 +296,13 @@ THEME_DEF={
    End-of-step state: if(p>=1) ...   Globals in steps: S (scenario), T (time), stepLive
    Player (window.explainer): duration, seek(t), setScenario(i), steps, scenarios, audit(), overview(), transcript(), reducedMotion
      Autoplay only with ?autoplay in the URL. Under prefers-reduced-motion: reduce the page loads paused on the overview, ignores
-     ?autoplay, never plays, and draws every step in its finished state (step, scrub and arrow keys still work).
+     ?autoplay, never plays, and draws every step in its finished state (step, scrub and arrow keys still work). The Play button
+     and the speed menu are hidden, the hint row says why in visible text, and "Step ›" becomes the primary control.
 ============================================================================================= */
 TH=Object.assign({},DEFAULT_THEME,THEME_DEF);
 TH.tokens=Object.assign({},DEFAULT_THEME.tokens,THEME_DEF.tokens||{});
 TH.packet=Object.assign({},DEFAULT_THEME.packet,THEME_DEF.packet||{}); TH.label=Object.assign({},DEFAULT_THEME.label,THEME_DEF.label||{});
-C=Object.assign({},TH.tokens); Object.assign(C,{cyan:C.request,cream:C.data,orange:C.active,standby:C.dim,grey:C.tagIdle});
+C=Object.assign({},TH.tokens); document.documentElement.style.setProperty("--focus",C.active); Object.assign(C,{cyan:C.request,cream:C.data,orange:C.active,standby:C.dim,grey:C.tagIdle});
 if(!C.fail) C.fail=C.active;  // themes without a separate failure colour keep drawing failures in the active colour
 document.documentElement.dataset.theme=TH.name;
 const RESETS=[], onReset=f=>RESETS.push(f);
@@ -473,8 +479,10 @@ function overview(){ setPlay(false); SETTLED=true; try{ render(0); } finally{ SE
 // step titles and captions as plain data, per scenario, so a host page can print them as text (theme-independent)
 function transcript(){ const keep=S; try{ return { title:SCENE.title, kicker:SCENE.kicker||"", note:SCENE.note||"", intro:{title:SCENE.introTitle||INTRO_TITLE, text:SCENE.introText||INTRO_TEXT},
     scenarios:SCENARIOS.map(sc=>{ S=sc; return {label:sc.label, steps:STEPS.map((s,i)=>({n:i+1, title:s.t, caption:s.x()}))}; }) }; } finally{ S=keep; } }
-function motionPref(){ const r=reduced(), b=$("bPlay"); document.documentElement.dataset.motion=r?"reduce":"full"; b.disabled=r;
-  b.title=r?"Playback is off because your system asks for reduced motion. Use the Step buttons or the arrow keys.":"Play / pause (Space)"; }
+const HINT_FULL="Space · ← →", HINT_REDUCED="Reduced motion: playback is off. Use Step or ← →.";
+function motionPref(){ const r=reduced(), b=$("bPlay"); document.documentElement.dataset.motion=r?"reduce":"full"; b.disabled=r; b.hidden=r; $("speed").hidden=r;
+  // the reason is visible text in the hint row, not a tooltip: keyboard and touch readers never see a title
+  $("hint").textContent=r?HINT_REDUCED:HINT_FULL; }
 function gotoStep(i){ setPlay(false); i=clamp(i,0,STEPS.length-1); render(STARTS[i]+STEPS[i].d-0.0001); }
 function setScenario(i){ S=SCENARIOS[i]; $("scenario").value=i; if(REF.scLbl) REF.scLbl.textContent=S.label; render(T<BOOT?home():T); }
 function start(){
@@ -507,6 +515,14 @@ window.addEventListener("DOMContentLoaded",()=>{ const faces=(TH.fontsToLoad||[]
 <script id="scene">
 // ===== SCENE START =====
 const THEME = "pattern-dark";
+// Preserve tool identifiers and the engine name after theme sentence casing.
+for (const key of ["titleCase", "pillFmt", "labelFmt"]) {
+  const format = TH[key];
+  TH[key] = value => format(value)
+    .replace(/\bcontext_search\b/gi, "context_search")
+    .replace(/\bbuild_context\b/gi, "build_context")
+    .replace(/\bbasic memory\b/gi, "Basic Memory");
+}
 const SCENE={
   title:"How files become a knowledge graph",
   code:"EXPLAINER 04", kicker:"STORAGE // RELATIONS",
@@ -514,7 +530,7 @@ const SCENE={
   crosshairs:[],
   legend:[["REQUEST",C.request],["RESULT / DATA",C.data],["ACTIVE",C.active],["FAILED",C.fail]],
   introTitle:"One note, from file to graph",
-  introText:"Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or add ?autoplay to the URL.",
+  introText:"Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or use the playback controls.",
 };
 const FOLDERS=["concepts · 5","decisions · 6","guides · 3","incidents · 3","meetings · 3","people · 3"];
 const SCENARIOS=[{label:"Sync Engine joins the graph",
@@ -527,7 +543,7 @@ const R={};
 function edgePath(d,color){ const p=el("path",{d,fill:"none",stroke:color,"stroke-width":1.5,"stroke-linecap":"round",opacity:0},par("graph"));
   onReset(()=>p.setAttribute("opacity",0)); return p; }
 function buildScene(){
-  panel("vault",{x:40,y:96,w:300,h:320,code:"V-01",title:"THE VAULT",chip:"CANONICAL"});
+  panel("vault",{x:40,y:96,w:300,h:320,code:"V-01",title:"demo library",chip:"CANONICAL"});
   text("vault",56,140,"plain markdown · watched folders","body2",{maxW:230});
   R.corp=[0,1,2].map(i=>slot("vault",56,156+i*24,268,22));
   R.corp2=[0,1,2].map(i=>slot("vault",56,234+i*24,268,22));

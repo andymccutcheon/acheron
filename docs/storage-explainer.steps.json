@@ -4,7 +4,7 @@
   "note": "Traced file: concepts/Sync Engine.md. Outgoing wikilinks shown as graph edges.",
   "intro": {
     "title": "One note, from file to graph",
-    "text": "Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or add ?autoplay to the URL."
+    "text": "Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or use the playback controls."
   },
   "scenarios": [
     {
