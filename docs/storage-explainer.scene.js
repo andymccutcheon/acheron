@@ -1,5 +1,13 @@
 // ===== SCENE START =====
 const THEME = "pattern";
+// Preserve tool identifiers and the engine name after theme sentence casing.
+for (const key of ["titleCase", "pillFmt", "labelFmt"]) {
+  const format = TH[key];
+  TH[key] = value => format(value)
+    .replace(/\bcontext_search\b/gi, "context_search")
+    .replace(/\bbuild_context\b/gi, "build_context")
+    .replace(/\bbasic memory\b/gi, "Basic Memory");
+}
 const SCENE={
   title:"How files become a knowledge graph",
   code:"EXPLAINER 04", kicker:"STORAGE // RELATIONS",
@@ -7,7 +15,7 @@ const SCENE={
   crosshairs:[],
   legend:[["REQUEST",C.request],["RESULT / DATA",C.data],["ACTIVE",C.active],["FAILED",C.fail]],
   introTitle:"One note, from file to graph",
-  introText:"Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or add ?autoplay to the URL.",
+  introText:"Ten steps through the storage layer for the Tidepool demo corpus. Step with the arrow keys or use the playback controls.",
 };
 const FOLDERS=["concepts · 5","decisions · 6","guides · 3","incidents · 3","meetings · 3","people · 3"];
 const SCENARIOS=[{label:"Sync Engine joins the graph",
@@ -20,7 +28,7 @@ const R={};
 function edgePath(d,color){ const p=el("path",{d,fill:"none",stroke:color,"stroke-width":1.5,"stroke-linecap":"round",opacity:0},par("graph"));
   onReset(()=>p.setAttribute("opacity",0)); return p; }
 function buildScene(){
-  panel("vault",{x:40,y:96,w:300,h:320,code:"V-01",title:"THE VAULT",chip:"CANONICAL"});
+  panel("vault",{x:40,y:96,w:300,h:320,code:"V-01",title:"demo library",chip:"CANONICAL"});
   text("vault",56,140,"plain markdown · watched folders","body2",{maxW:230});
   R.corp=[0,1,2].map(i=>slot("vault",56,156+i*24,268,22));
   R.corp2=[0,1,2].map(i=>slot("vault",56,234+i*24,268,22));

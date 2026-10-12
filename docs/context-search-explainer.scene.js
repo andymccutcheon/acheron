@@ -1,5 +1,13 @@
 // ===== SCENE START =====
 const THEME = "pattern";
+// Preserve tool identifiers and the engine name after theme sentence casing.
+for (const key of ["titleCase", "pillFmt", "labelFmt"]) {
+  const format = TH[key];
+  TH[key] = value => format(value)
+    .replace(/\bcontext_search\b/gi, "context_search")
+    .replace(/\bbuild_context\b/gi, "build_context")
+    .replace(/\bbasic memory\b/gi, "Basic Memory");
+}
 const SCENE={
   title:"How a question becomes a ranked answer",
   code:"EXPLAINER 03", kicker:"CONTEXT // SEARCH PATH",
@@ -7,7 +15,7 @@ const SCENE={
   crosshairs:[],
   legend:[["REQUEST",C.request],["RESULT / DATA",C.data],["ACTIVE",C.active],["FAILED",C.fail]],
   introTitle:"One query through the context layer",
-  introText:"Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or add ?autoplay to the URL.",
+  introText:"Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or use the playback controls.",
 };
 const FOLDERS=["concepts · 5","decisions · 6","guides · 3","incidents · 3","meetings · 3","people · 3"];
 const SCENARIOS=[
@@ -35,14 +43,14 @@ function buildScene(){
   R.rst=dynText("router",496,160,"body2",{maxW:298});
   R.cand=[0,1,2,3].map(i=>slot("router",496,176+i*28,298,24));
 
-  panel("bm",{x:900,y:96,w:300,h:150,code:"S-01",title:"BASIC MEMORY",chip:"WATCHING"});
+  panel("bm",{x:900,y:96,w:300,h:150,code:"S-01",title:"Basic Memory",chip:"WATCHING"});
   icon("bm","db",1168,196,0.8);
   text("bm",916,150,"HTTP MCP · hybrid search","body2",{maxW:230});
   text("bm",916,172,"SQLite index · file watcher","body2",{maxW:230});
   text("bm",916,194,"findable in under a minute","body2",{maxW:230});
   panel("dec",{x:900,y:290,w:300,h:150,code:"S-02",title:"DECISION MODEL",chip:"STANDBY"});
   text("dec",916,344,"OpenRouter · Mercury Decide","body2",{maxW:268});
-  text("dec",916,366,"scores candidates 0–3","body2",{maxW:268});
+  text("dec",916,366,"scores candidates 0 to 3","body2",{maxW:268});
   R.scores=dynText("dec",916,392,"out",{maxW:268});
 
   panel("lib",{x:480,y:470,w:720,h:120,code:"L-01",title:"TIDEPOOL DEMO LIBRARY",chip:"23 NOTES"});
@@ -86,7 +94,7 @@ const STEPS=[
     packet(0,[["d2r",0]],sub(p,0,.5),"res","SCORES");
     R.scores.set(S.scores.join(" · "));
     if(p>.5){ setChip("dec","DONE","done"); setActive("router"); } else setActive("dec"); }},
- {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
+ {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, 23 synthetic notes, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
   a:p=>{ R.ans[0].show("1 · "+S.winner,C.data,sub(p,.1,.4));
     R.ans[1].show("9 other candidates reordered",C.lineHi,sub(p,.25,.55));
     R.ans[2].show("Only the winner's rank is evidenced",C.lineHi,sub(p,.4,.7));

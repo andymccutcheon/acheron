@@ -24,7 +24,7 @@ command -v magick >/dev/null || {
 
 for image in *-poster.png *-final.png; do
   optimized="${image%.png}.optimized.png"
-  magick "$image" -strip -colors 128 -define png:compression-level=9 "$optimized"
+  magick "$image" -strip +dither -colors 256 -define png:compression-level=9 "$optimized"
   mv "$optimized" "$image"
 done
 
