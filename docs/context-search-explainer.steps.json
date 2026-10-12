@@ -1,7 +1,7 @@
 {
   "title": "How a question becomes a ranked answer",
   "kicker": "CONTEXT // SEARCH PATH",
-  "note": "Decision scores on screen are illustrative. Benchmark top-1 counts from README (16 questions, 23-note corpus).",
+  "note": "Only Mercury rank 1 is shown. Benchmark ranks and top-1 counts come from the recorded 16-question, 23-note demo corpus.",
   "intro": {
     "title": "One query through the context layer",
     "text": "Eleven steps from a Tidepool benchmark question to a ranked answer, including model failure. Step with the arrow keys or add ?autoplay to the URL."
@@ -38,12 +38,12 @@
         {
           "n": 6,
           "title": "Scores return",
-          "caption": "Scores are ordering signal. They do not change which notes were retrieved."
+          "caption": "Scores are ordering signal. They do not change which notes were retrieved; the score labels shown here are illustrative."
         },
         {
           "n": 7,
           "title": "Model order wins",
-          "caption": "In auto mode with Mercury, model order wins. On the published benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16."
+          "caption": "In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16."
         },
         {
           "n": 8,

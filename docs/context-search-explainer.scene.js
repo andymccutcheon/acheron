@@ -3,7 +3,7 @@ const THEME = "pattern";
 const SCENE={
   title:"How a question becomes a ranked answer",
   code:"EXPLAINER 03", kicker:"CONTEXT // SEARCH PATH",
-  note:"Decision scores on screen are illustrative. Benchmark top-1 counts from README (16 questions, 23-note corpus).",
+  note:"Only Mercury rank 1 is shown. Benchmark ranks and top-1 counts come from the recorded 16-question, 23-note demo corpus.",
   crosshairs:[],
   legend:[["REQUEST",C.request],["RESULT / DATA",C.data],["ACTIVE",C.active],["FAILED",C.fail]],
   introTitle:"One query through the context layer",
@@ -14,10 +14,10 @@ const SCENARIOS=[
   {label:"Mobile sunset question",
    query:["Why did Tidepool drop","its mobile app?"],
    cands:["2025-08-04 Weekly","Maya Chen","Priya Nair","Decision - Local-first, no cloud sync"],
-   scores:["1","2","2","1"],
-   top:["Decision - Drop the native mobile app","Mobile App","2025-08-04 Weekly","Maya Chen"],
+   scores:["high","review","review","high"],
+   winner:"Decision - Drop the native mobile app",
    nativeTop:["2025-08-04 Weekly","Maya Chen","Priya Nair","Decision - Local-first, no cloud sync"],
-   answer:["Retire both native apps;","keep a read-only web gallery","for sharing."]},
+   answer:["Mobile sync took about half","of each release cycle; the relay","added an unwanted server dependency."]},
 ];
 const R={};
 function buildScene(){
@@ -74,20 +74,23 @@ const STEPS=[
  {t:"Ten candidates return", d:3.6, x:()=>"Up to ten notes return with paths and snippets. The right answer is usually already in the list; reranking only reorders.",
   a:p=>{ packet(0,[["b2r",0]],sub(p,0,.45),"res","10 NOTES");
     R.cand.forEach((s,i)=>s.show(S.cands[i],C.data,sub(p,.35+i*.12,.6+i*.12)));
-    if(p>.6){ setChip("bm","10 FOUND","done"); R.rst.set("10 candidates",C.ink2); setActive("router"); }
+    if(p>.6){ setChip("bm","10 FOUND","done"); R.rst.set("10 candidates · answer native rank 7",C.ink2); setActive("router"); }
     else setActive("bm"); }},
  {t:"The model scores each note", d:3.6, x:()=>"When an OpenRouter key is set, Mercury Decide scores each candidate on usefulness. Note text is untrusted evidence, not instructions.",
   a:p=>{ R.cand.forEach((s,i)=>s.show(S.cands[i],C.data,1));
     packet(0,[["r2d",0]],sub(p,.1,.75),"req","SCORE");
     setActive("dec"); R.scores.set("scoring 10 candidates");
     if(p>.8) setChip("dec","SCORING","idle"); }},
- {t:"Scores return", d:3.4, x:()=>"Scores are ordering signal. They do not change which notes were retrieved.",
+ {t:"Scores return", d:3.4, x:()=>"Scores are ordering signal. They do not change which notes were retrieved; the score labels shown here are illustrative.",
   a:p=>{ R.cand.forEach((s,i)=>s.show(S.cands[i]+" · "+S.scores[i],C.data,1));
     packet(0,[["d2r",0]],sub(p,0,.5),"res","SCORES");
     R.scores.set(S.scores.join(" · "));
     if(p>.5){ setChip("dec","DONE","done"); setActive("router"); } else setActive("dec"); }},
- {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the published benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
-  a:p=>{ R.ans.forEach((s,i)=>s.show((i+1)+" · "+S.top[i], i===0?C.data:C.lineHi, sub(p,.1+i*.15,.4+i*.15)));
+ {t:"Model order wins", d:3.8, x:()=>"In auto mode with Mercury, model order wins. On the unstacked benchmark (16 questions, hand labels), Mercury put the labeled note first in 14 of 16; native hybrid alone reached 7 of 16.",
+  a:p=>{ R.ans[0].show("1 · "+S.winner,C.data,sub(p,.1,.4));
+    R.ans[1].show("9 other candidates reordered",C.lineHi,sub(p,.25,.55));
+    R.ans[2].show("Only the winner's rank is evidenced",C.lineHi,sub(p,.4,.7));
+    R.ans[3].show("",C.dim,0);
     R.rst.set("ranking: model · fallback false",C.ink2); setActive("router");
     setChip("answer","RANKED","done");
     if(p>.9) setChip("router","RANKED","done"); }},
