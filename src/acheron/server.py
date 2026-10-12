@@ -170,8 +170,19 @@ async def context_search(
     cfg = Config.from_env()
     # Caller-controlled rerank work is bounded (recommendation 2026-10, H1): plain
     # `or` let 0 fall through and forwarded negatives; clamp instead, into [1, ceiling].
-    limit = clamp(limit if limit is not None else cfg.limit, 1, LIMIT_MAX)
-    candidates = clamp(candidates if candidates is not None else cfg.candidates, 1, CANDIDATES_MAX)
+    # A clamp that fires is disclosed, never silent (Cricket requirement 2026-10-12):
+    # the response payload carries `clamped` and the server logs one warning line.
+    requested_limit = limit if limit is not None else cfg.limit
+    requested_candidates = candidates if candidates is not None else cfg.candidates
+    limit = clamp(requested_limit, 1, LIMIT_MAX)
+    candidates = clamp(requested_candidates, 1, CANDIDATES_MAX)
+    clamped: dict[str, dict[str, int]] = {}
+    if limit != requested_limit:
+        clamped["limit"] = {"requested": requested_limit, "effective": limit}
+    if candidates != requested_candidates:
+        clamped["candidates"] = {"requested": requested_candidates, "effective": candidates}
+    if clamped:
+        log.warning("context_search clamped caller counts: %s", clamped)
     started = time.time()
     project = project or cfg.default_project
 
@@ -212,6 +223,8 @@ async def context_search(
             return _error_payload(exc)
         payload["ranking"] = "native"
         payload["mode"] = "filter"
+        if clamped:
+            payload["clamped"] = clamped
         return json.dumps(payload, indent=1)
 
     try:
@@ -288,6 +301,8 @@ async def context_search(
             for item in results_out
         ],
     }
+    if clamped:
+        payload["clamped"] = clamped
     return json.dumps(payload, indent=1)
 
 

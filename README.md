@@ -188,7 +188,10 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/local.basic-memory-http.pl
   failure degrades ordering, never availability. Both are defensible; pick per your workload.
 - **Bounded rerank work.** Per-request `limit` and `candidates` and every environment override
   are clamped into hard ceilings (25 results, 50 candidates), so one call cannot inflate latency,
-  payload size, or provider usage. Candidate text reaches the reranker as untrusted evidence, and
+  payload size, or provider usage. A clamp that fires is disclosed, never silent: the response
+  payload carries a `clamped` object (`requested` → `effective` per parameter) and the server
+  logs one warning line, so an operator can cite the event. Candidate text reaches the reranker
+  as untrusted evidence — guarded by a preamble before and a ruling after the text — and
   transport or invalid-body failures from the decision API fall open like any ranking failure.
 - **Fold, don't rename.** Proxied tools keep the engine's names — a rename map costs
   maintenance and fights upstream docs. Only the duplicate search verb is folded, because two

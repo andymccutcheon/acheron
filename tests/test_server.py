@@ -171,6 +171,30 @@ async def test_oversized_requests_clamp_to_the_hard_ceiling(monkeypatch):
     assert engine.calls[0][2]["page_size"] == CANDIDATES_MAX
 
 
+async def test_clamped_requests_disclose_the_clamp_in_the_payload(monkeypatch):
+    engine = FakeEngine()
+    use_engine(monkeypatch, engine)
+    out = json.loads(await server.context_search(query="x", limit=10_000, candidates=10_000))
+    assert out["clamped"] == {
+        "limit": {"requested": 10_000, "effective": LIMIT_MAX},
+        "candidates": {"requested": 10_000, "effective": CANDIDATES_MAX},
+    }
+
+
+async def test_unclamped_requests_carry_no_disclosure(monkeypatch):
+    engine = FakeEngine()
+    use_engine(monkeypatch, engine)
+    out = json.loads(await server.context_search(query="x"))
+    assert "clamped" not in out
+
+
+async def test_filter_only_clamped_requests_disclose_the_clamp(monkeypatch):
+    engine = FakeEngine(payload={"results": [], "count": 0})
+    use_engine(monkeypatch, engine)
+    out = json.loads(await server.context_search(tags=["ai"], limit=10_000))
+    assert out["clamped"]["limit"] == {"requested": 10_000, "effective": LIMIT_MAX}
+
+
 async def test_zero_and_negative_requests_clamp_to_one(monkeypatch):
     engine = FakeEngine()
     use_engine(monkeypatch, engine)
