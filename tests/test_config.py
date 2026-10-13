@@ -112,6 +112,11 @@ def test_validate_accepts_https_and_loopback_http(url):
         "https:///v1/systemone",
         "http://127.0.0.1.example.test/v1/systemone",
         "http://localhost.example.test/v1/systemone",
+        "http://127.0.0.1:99999/v1/systemone",
+        "http://127.0.0.1:port/v1/systemone",
+        "https://api.example.test:0/v1/systemone",
+        "https://user:secret@api.example.test/v1/systemone",
+        "https://token@api.example.test/v1/systemone",
     ],
 )
 def test_validate_rejects_insecure_or_malformed_urls(url):

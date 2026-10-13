@@ -107,7 +107,7 @@ ranked first" on the 16-question demo benchmark; native order scores 7.
 | 1. No key | Nothing | Set `"reranker_enabled": true` in Basic Memory's `config.json`, restart the engine | 12 |
 | 2. Recommended | A free OpenRouter key | `OPENROUTER_API_KEY=...` (Mercury Decide is the default) | 14 |
 | 3. Paid alternates | An OpenRouter key with credit | `ACHERON_PROVIDER=perplexity` or `ACHERON_PROVIDER=jev` | 13–14 |
-| 4. Your own endpoint | Any `/v1/systemone`-compatible server | `ACHERON_PROVIDER=custom` plus URL and model (below) | unmeasured |
+| 4. Your own endpoint | Any `/v1/systemone`-compatible server | `ACHERON_PROVIDER=custom` plus URL and model (below) | depends on the model |
 
 Rungs 1 and 2 stack: Mercury on top of the engine's reranker scored 15.
 
@@ -125,9 +125,10 @@ Rungs 1 and 2 stack: Mercury on top of the engine's reranker scored 15.
   uv run acheron
   ```
 
-  It follows the published System One API. It has not been exercised against a live local
-  server yet, and its ranking quality depends on the model you load: measure it with
-  `eval/benchmark.py --url ... --model ...`.
+  Verified against llama.cpp's `llama-server` on 2026-10-12, with no key sent. Ranking quality
+  depends entirely on the model you load: the smallest open-weight one tried (Kev 0.8B, 812 MB)
+  scored 8, barely above native order, so a small local model is not a substitute for rung 1.
+  Measure yours with `eval/benchmark.py --url ... --model ...`.
 
 ## Reproduce the benchmark
 
@@ -153,6 +154,7 @@ Measured (16 questions, top-1 / top-3):
 | Mercury Decide (free) | 14 | 15 |
 | Perplexity Decider v1.1 27B | 14 | 15 |
 | Jev 1.13 | 13–14 (two runs) | 15 |
+| Kev 0.8B, local via llama.cpp | 8 | 12 |
 | Mercury stacked on the built-in reranker | **15** | **16** |
 
 Caveats, stated up front: 16 questions, hand labels, one synthetic corpus — differences of 1–3

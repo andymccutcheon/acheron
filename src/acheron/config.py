@@ -54,15 +54,23 @@ def is_openrouter(url: str) -> bool:
 
 def validate_decisions_url(url: str) -> str:
     """Accept https anywhere and plain http only on loopback; fail fast otherwise."""
+    malformed = ValueError(
+        "ACHERON_DECISIONS_URL must be a full http(s) URL, "
+        "for example https://host/v1/systemone"
+    )
     try:
-        scheme = urlsplit(url).scheme.lower()
+        parts = urlsplit(url)
+        scheme = parts.scheme.lower()
+        port = parts.port  # raises ValueError when it is not a number in 0-65535
     except ValueError:
-        scheme = ""
+        raise malformed from None
     host = _host(url)
-    if not host or scheme not in {"http", "https"}:
+    if not host or scheme not in {"http", "https"} or port == 0:
+        raise malformed
+    if parts.username is not None or parts.password is not None:
         raise ValueError(
-            "ACHERON_DECISIONS_URL must be a full http(s) URL, "
-            "for example https://host/v1/systemone"
+            "ACHERON_DECISIONS_URL must not carry credentials; "
+            "put the key in ACHERON_DECISIONS_KEY"
         )
     if scheme == "http" and host not in LOOPBACK_HOSTS:
         raise ValueError(

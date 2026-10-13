@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from mcp.server.fastmcp.tools.base import Tool as FastMCPTool
 from mcp.types import CallToolResult, TextContent, Tool
 
@@ -280,8 +281,16 @@ LOCAL_URL = "http://127.0.0.1:9931/v1/systemone"
 VENDOR_URL = "https://api.example.test/v1/systemone"
 
 
-async def test_auto_ranking_uses_model_order_for_jev(monkeypatch):
-    cfg = Config(provider="jev", model="typesafe/jev-1.13", openrouter_key="or-key")
+@pytest.mark.parametrize(
+    ("provider", "model"),
+    [
+        ("mercury", "inception/mercury-decide:free"),
+        ("perplexity", "perplexity/pplx-decider-v1.1-27b"),
+        ("jev", "typesafe/jev-1.13"),
+    ],
+)
+async def test_auto_ranking_uses_model_order_for_every_preset(monkeypatch, provider, model):
+    cfg = Config(provider=provider, model=model, openrouter_key="or-key")
     use_scorer(monkeypatch, cfg)
     out = json.loads(await server.context_search(query="q"))
     assert out["ranking"] == "model"
@@ -381,10 +390,20 @@ async def test_per_call_preset_override_uses_openrouter_not_the_custom_endpoint(
     assert seen[0]["model"] == "perplexity/pplx-decider-v1.1-27b"
 
 
-async def test_per_call_provider_cannot_name_an_endpoint_or_model(monkeypatch):
+@pytest.mark.parametrize(
+    "attempt",
+    [
+        "https://evil.example.test/x",
+        "http://127.0.0.1:9931/v1/systemone",
+        "typesafe/jev-1.13",
+        "openjev",
+        "custom",
+    ],
+)
+async def test_per_call_provider_cannot_name_an_endpoint_or_model(monkeypatch, attempt):
     cfg = Config(openrouter_key="or-key")
     seen = use_scorer(monkeypatch, cfg)
-    out = json.loads(await server.context_search(query="q", provider="https://evil.example.test/x"))
+    out = json.loads(await server.context_search(query="q", provider=attempt))
     assert seen == []
     assert out["ranking"] == "native"
 
