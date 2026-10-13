@@ -114,7 +114,9 @@ Rungs 1 and 2 stack: Mercury on top of the engine's reranker scored 15.
 - **Rung 1 fails closed.** The engine's reranker returns an error when it fails, where
   Acheron's own reranking falls back to native order. See [Design notes](#design-notes).
 - **Rung 3 is a preference, not an upgrade.** Mercury, Perplexity Decider and Jev land within
-  one question of each other here, which is inside the noise; choose on latency, price or vendor.
+  one question of each other here, which is inside the noise. On a private 25-question set over
+  real notes (not shipped), Mercury ranked the expected note first 19 times, Perplexity Decider
+  20 and Jev 14, so the free default gives nothing up.
 - **Rung 4** covers a vendor's direct endpoint or a local server such as llama.cpp or LM Studio
   running an open-weight decision model:
 
@@ -249,7 +251,7 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/local.basic-memory-http.pl
 ## Development
 
 ```sh
-uv run pytest                     # 75 tests
+uv run pytest                     # 86 tests
 uv run python eval/demo/build_corpus.py   # regenerate the synthetic corpus
 ```
 
