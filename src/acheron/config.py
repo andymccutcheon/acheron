@@ -4,12 +4,22 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
-PROVIDERS: dict[str, str | None] = {
+OPENROUTER_DECISIONS_URL = "https://openrouter.ai/api/alpha/decisions"
+OPENROUTER_HOST = "openrouter.ai"
+LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+
+# Presets are decision models served through OpenRouter. `custom` points at any other
+# endpoint that speaks the same API (a vendor's direct endpoint or a local server) and
+# takes its URL and model from the environment; `none` disables reranking.
+PRESETS: dict[str, str] = {
     "mercury": "inception/mercury-decide:free",
+    "perplexity": "perplexity/pplx-decider-v1.1-27b",
     "jev": "typesafe/jev-1.13",
-    "none": None,
 }
+CUSTOM = "custom"
+PROVIDERS: dict[str, str | None] = {**PRESETS, CUSTOM: None, "none": None}
 
 # Hard ceilings on caller-controlled rerank work (recommendations 2026-10, H1).
 # Requests and environment overrides are clamped into [1, ceiling]; the ceilings sit
@@ -26,6 +36,51 @@ def clamp(value: int, low: int, high: int) -> int:
 
 def clamp_timeout(value: float) -> float:
     return min(max(value, TIMEOUT_MIN), TIMEOUT_MAX)
+
+def _host(url: str) -> str:
+    try:
+        return (urlsplit(url).hostname or "").lower()
+    except ValueError:
+        return ""
+
+
+def is_loopback(url: str) -> bool:
+    return _host(url) in LOOPBACK_HOSTS
+
+
+def is_openrouter(url: str) -> bool:
+    return _host(url) == OPENROUTER_HOST
+
+
+def validate_decisions_url(url: str) -> str:
+    """Accept https anywhere and plain http only on loopback; fail fast otherwise."""
+    try:
+        scheme = urlsplit(url).scheme.lower()
+    except ValueError:
+        scheme = ""
+    host = _host(url)
+    if not host or scheme not in {"http", "https"}:
+        raise ValueError(
+            "ACHERON_DECISIONS_URL must be a full http(s) URL, "
+            "for example https://host/v1/systemone"
+        )
+    if scheme == "http" and host not in LOOPBACK_HOSTS:
+        raise ValueError(
+            "ACHERON_DECISIONS_URL must use https unless it points at this machine "
+            "(127.0.0.1, localhost or ::1)"
+        )
+    return url
+
+
+def decision_key(
+    url: str, *, openrouter_key: str | None, decisions_key: str | None
+) -> str | None:
+    """The key for one endpoint. A key is bound to its host: the OpenRouter key is only
+    ever sent to openrouter.ai, and every other host gets ACHERON_DECISIONS_KEY or none."""
+    if is_openrouter(url):
+        return openrouter_key or None
+    return decisions_key or None
+
 
 _AUTH_PATH = Path.home() / ".local" / "share" / "opencode" / "auth.json"
 
@@ -55,6 +110,8 @@ class Config:
     ranking: str = "auto"
     timeout: float = 60.0
     openrouter_key: str | None = None
+    decisions_url: str = OPENROUTER_DECISIONS_URL
+    decisions_key: str | None = None
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -64,6 +121,18 @@ class Config:
                 f"ACHERON_PROVIDER must be one of {sorted(PROVIDERS)}, got {provider!r}"
             )
         model = os.environ.get("ACHERON_MODEL") or PROVIDERS[provider]
+        custom_url = os.environ.get("ACHERON_DECISIONS_URL") or None
+        if provider == CUSTOM:
+            if not custom_url:
+                raise ValueError(
+                    "ACHERON_PROVIDER=custom needs ACHERON_DECISIONS_URL "
+                    "(the full URL of the decisions endpoint)"
+                )
+            if not model:
+                raise ValueError(
+                    "ACHERON_PROVIDER=custom needs ACHERON_MODEL (the decision model id)"
+                )
+        decisions_url = validate_decisions_url(custom_url or OPENROUTER_DECISIONS_URL)
         ranking = os.environ.get("ACHERON_RANKING", "auto").lower()
         if ranking not in {"auto", "model", "fuse"}:
             raise ValueError(
@@ -82,4 +151,6 @@ class Config:
             ranking=ranking,
             timeout=clamp_timeout(float(os.environ.get("ACHERON_TIMEOUT", "60"))),
             openrouter_key=openrouter_key(),
+            decisions_url=decisions_url,
+            decisions_key=os.environ.get("ACHERON_DECISIONS_KEY") or None,
         )

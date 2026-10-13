@@ -22,7 +22,16 @@ from mcp.types import CallToolResult, TextContent
 from pydantic import WithJsonSchema
 
 from .bm import BMClient, BMError
-from .config import CANDIDATES_MAX, LIMIT_MAX, PROVIDERS, Config, clamp
+from .config import (
+    CANDIDATES_MAX,
+    LIMIT_MAX,
+    OPENROUTER_DECISIONS_URL,
+    PRESETS,
+    Config,
+    clamp,
+    decision_key,
+    is_loopback,
+)
 from .decisions import DecisionsError, score_candidates
 from .ranking import fuse, rank_by_model
 
@@ -54,8 +63,13 @@ def _get_http() -> httpx.AsyncClient:
     return _http
 
 
-def _model_for(provider: str) -> str | None:
-    return PROVIDERS.get(provider.lower())
+def _endpoint_for(cfg: Config, provider: str) -> tuple[str | None, str]:
+    """Resolve (model, url) for a provider name. The configured provider uses the
+    configured model and endpoint; a per-call override may only name an OpenRouter
+    preset, so a caller can never supply a URL or a model id."""
+    if provider == cfg.provider:
+        return cfg.model, cfg.decisions_url
+    return PRESETS.get(provider), OPENROUTER_DECISIONS_URL
 
 
 def _error_payload(exc: BMError) -> str:
@@ -133,7 +147,7 @@ async def register_proxies(server: FastMCP = mcp, client: BMClient | None = None
         "Search the user's context library (notes, saved posts, agent memory) "
         "and return the most relevant passages. Results are ranked by combining "
         "the storage engine's native hybrid search with a System One decision model "
-        "(Mercury by default). Accepts the engine's filter parameters (tags, status, "
+        "when one is configured. Accepts the engine's filter parameters (tags, status, "
         "note_types, entity_types, categories, metadata_filters, dates, search_type); "
         "with a query results are reranked, with filters only native order is returned. "
         "Each result includes the note path so it can be read in full. This is the only "
@@ -244,21 +258,25 @@ async def context_search(
     candidates_list = raw[:candidates]
 
     chosen_provider = (provider or cfg.provider).lower()
-    model = cfg.model if chosen_provider == cfg.provider else _model_for(chosen_provider)
+    model, url = _endpoint_for(cfg, chosen_provider)
+    key = decision_key(
+        url, openrouter_key=cfg.openrouter_key, decisions_key=cfg.decisions_key
+    )
 
     provider_used = "native"
     fallback = False
     model_scores = None
     if model:
-        if not cfg.openrouter_key:
+        if not key and not is_loopback(url):
             fallback = True
-            provider_used = "native (no OpenRouter key available)"
+            provider_used = "native (no key for the configured decision endpoint)"
         else:
             try:
                 model_scores = await score_candidates(
                     _get_http(),
+                    url=url,
                     model=model,
-                    key=cfg.openrouter_key,
+                    key=key,
                     query=query,
                     candidates=candidates_list,
                     timeout=cfg.timeout,
@@ -270,7 +288,9 @@ async def context_search(
 
     mode = cfg.ranking
     if mode == "auto":
-        mode = {"mercury": "model", "jev": "fuse"}.get(chosen_provider, "fuse")
+        # Model order for every decision model: on the demo benchmark it beat fusion
+        # with native order by 4 to 6 questions for all six models tried (2026-10-12).
+        mode = "model"
     if model_scores is not None and mode == "model":
         ranked = rank_by_model(candidates_list, model_scores)
     else:

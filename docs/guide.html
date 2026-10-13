@@ -298,7 +298,7 @@
       <div class="num">1</div>
       <div>
         <h3>Prerequisites</h3>
-        <p>Python 3.12+, <a href="https://docs.astral.sh/uv/">uv</a>, Basic Memory with at least one project of markdown notes, and — for reranking — an OpenRouter key (the Mercury tier is free).</p>
+        <p>Python 3.12+, <a href="https://docs.astral.sh/uv/">uv</a>, Basic Memory with at least one project of markdown notes. Nothing else is required. Reranking is optional: turn on the engine's built-in reranker for a no-key improvement, add a free OpenRouter key for Mercury Decide, or point <code>ACHERON_PROVIDER=custom</code> at any endpoint that speaks the System One API, including a local server.</p>
       </div>
     </div>
     <div class="step">
@@ -386,6 +386,8 @@ bm status                           # confirm: "indexed and settled"</code></pre
         <tr><td>Native hybrid (engine default)</td><td>7</td><td>12</td></tr>
         <tr><td>Engine's built-in local reranker (fastembed)</td><td>12</td><td>14</td></tr>
         <tr><td>Mercury Decide (free tier)</td><td>14</td><td>15</td></tr>
+        <tr><td>Perplexity Decider v1.1 27B</td><td>14</td><td>15</td></tr>
+        <tr><td>Jev 1.13</td><td>13–14 (two runs)</td><td>15</td></tr>
         <tr><td>Mercury stacked on the built-in reranker</td><td><strong>15</strong></td><td><strong>16</strong></td></tr>
       </tbody>
     </table>
@@ -553,7 +555,7 @@ python3 skills/acheron-memory/scripts/corpus_scan.py links ~/Notes</code></pre>
 <section id="operations">
   <div class="sec-kicker">08 — Operations</div>
   <h2>It runs quietly. Here's how to keep it that way.</h2>
-  <p class="sec-intro">No telemetry and no Acheron daemon beyond the storage engine. By default, when Acheron finds an OpenRouter key (the <code>OPENROUTER_API_KEY</code> variable or OpenCode's stored key), each reranked search sends your query and each candidate's title and snippet to OpenRouter, capped at 500 characters for the query, 200 per title and 500 per snippet. Set <code>ACHERON_PROVIDER=none</code> to keep search fully local. The operational surface is small on purpose.</p>
+  <p class="sec-intro">No telemetry and no Acheron daemon beyond the storage engine. By default, when Acheron finds an OpenRouter key (the <code>OPENROUTER_API_KEY</code> variable or OpenCode's stored key), each reranked search sends your query and each candidate's title and snippet to OpenRouter, capped at 500 characters for the query, 200 per title and 500 per snippet. With <code>ACHERON_PROVIDER=custom</code> the same text goes to the endpoint you configure instead, and stays on your machine if that endpoint is a local server. Set <code>ACHERON_PROVIDER=none</code> to send nothing. The operational surface is small on purpose.</p>
 
   <div class="grid-2">
     <div class="card">
@@ -568,7 +570,7 @@ launchctl kickstart -k gui/$(id -u)/local.basic-memory-http   # restart</code></
     </div>
     <div class="card">
       <h3>Model &amp; cost</h3>
-      <p>Mercury Decide's free tier allows 20 requests/minute — benchmark runners pace themselves (<code>--delay 3.2</code>). Reranking costs nothing locally with <code>provider: none</code>; Jev is available behind a flag.</p>
+      <p>Mercury Decide's free tier allows 20 requests/minute — benchmark runners pace themselves (<code>--delay 3.2</code>). <code>provider: none</code> makes no model calls; Perplexity Decider and Jev are paid presets, and <code>custom</code> reaches any other endpoint.</p>
     </div>
     <div class="card">
       <h3>Index hygiene</h3>
@@ -604,7 +606,7 @@ launchctl kickstart -k gui/$(id -u)/local.basic-memory-http   # restart</code></
         <tr>
           <td>Results look unordered</td>
           <td>Model unavailable (check <code>fallback: true</code>), or a key isn't set</td>
-          <td>Set <code>OPENROUTER_API_KEY</code>, or accept native order deliberately with <code>provider: none</code></td>
+          <td>Set <code>OPENROUTER_API_KEY</code> (or <code>ACHERON_DECISIONS_KEY</code> for a custom endpoint), or accept native order deliberately with <code>provider: none</code></td>
         </tr>
         <tr>
           <td>Links broke after a rename</td>
@@ -632,8 +634,10 @@ launchctl kickstart -k gui/$(id -u)/local.basic-memory-http   # restart</code></
       <thead><tr><th>Variable</th><th>Default</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>ACHERON_BM_URL</code></td><td><code>http://127.0.0.1:8765/mcp</code></td><td>Engine HTTP MCP endpoint</td></tr>
-        <tr><td><code>ACHERON_PROVIDER</code></td><td><code>mercury</code></td><td><code>mercury</code> · <code>jev</code> · <code>none</code></td></tr>
-        <tr><td><code>ACHERON_MODEL</code></td><td>provider default</td><td>Override the decision model id</td></tr>
+        <tr><td><code>ACHERON_PROVIDER</code></td><td><code>mercury</code></td><td><code>mercury</code> · <code>perplexity</code> · <code>jev</code> · <code>custom</code> · <code>none</code></td></tr>
+        <tr><td><code>ACHERON_MODEL</code></td><td>provider default</td><td>Decision model id; required for <code>custom</code></td></tr>
+        <tr><td><code>ACHERON_DECISIONS_URL</code></td><td>OpenRouter</td><td>Decisions endpoint; required for <code>custom</code>; <code>https</code> unless local</td></tr>
+        <tr><td><code>ACHERON_DECISIONS_KEY</code></td><td>none</td><td>Key for a non-OpenRouter endpoint; omit for a local server</td></tr>
         <tr><td><code>ACHERON_DEFAULT_PROJECT</code></td><td>none</td><td>Project scope when the caller passes none</td></tr>
       </tbody>
     </table>

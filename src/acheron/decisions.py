@@ -70,26 +70,32 @@ async def score_candidates(
     client: httpx.AsyncClient,
     *,
     model: str,
-    key: str,
+    key: str | None,
     query: str,
     candidates: list[dict],
+    url: str = DECISIONS_URL,
     timeout: float = 60.0,
     retries: int = 1,
     retry_delay: float = 2.0,
 ) -> list[float | None]:
     payload = build_payload(model, query, candidates)
+    # A local server needs no key; send the header only when there is one.
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
     for attempt in range(retries + 1):
         try:
             response = await client.post(
-                DECISIONS_URL,
+                url,
                 json=payload,
-                headers={"Authorization": f"Bearer {key}"},
+                headers=headers,
                 timeout=timeout,
             )
         except httpx.HTTPError as exc:
             # Transport failures fall open too: surface as DecisionsError so the caller
             # returns native order instead of failing the search.
-            raise DecisionsError(f"decisions API transport error: {exc}") from exc
+            # Name the failure class only: the exception text can carry the endpoint.
+            raise DecisionsError(
+                f"decisions API transport error: {type(exc).__name__}"
+            ) from exc
         if response.status_code < 400:
             try:
                 data = response.json()

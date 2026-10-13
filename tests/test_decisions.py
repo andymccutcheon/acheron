@@ -155,3 +155,67 @@ async def test_score_candidates_retries_rate_limit_once():
     assert scores == [2.0]
     assert calls["count"] == 2
     await client.aclose()
+
+
+async def test_score_candidates_posts_to_the_configured_url():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["url"] = str(request.url)
+        return httpx.Response(200, json={"answers": {"c1": {"score": 1.5}}})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    scores = await score_candidates(
+        client,
+        url="http://127.0.0.1:9931/v1/systemone",
+        model="openjev",
+        key=None,
+        query="q",
+        candidates=[{"title": "One", "snippet": "a"}],
+    )
+    assert scores == [1.5]
+    assert captured["url"] == "http://127.0.0.1:9931/v1/systemone"
+    await client.aclose()
+
+
+async def test_score_candidates_sends_no_authorization_without_a_key():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["headers"] = {name.lower() for name in request.headers}
+        return httpx.Response(200, json={"answers": {"c1": {"score": 1.0}}})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    await score_candidates(
+        client,
+        url="http://127.0.0.1:9931/v1/systemone",
+        model="openjev",
+        key=None,
+        query="q",
+        candidates=[{"title": "One", "snippet": "a"}],
+    )
+    assert "authorization" not in captured["headers"]
+    await client.aclose()
+
+
+async def test_transport_error_text_omits_the_endpoint_and_key():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError(
+            "cannot reach https://api.example.test/v1/systemone with Bearer vendor-key"
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    with pytest.raises(DecisionsError) as excinfo:
+        await score_candidates(
+            client,
+            url="https://api.example.test/v1/systemone",
+            model="m",
+            key="vendor-key",
+            query="q",
+            candidates=[{"title": "One", "snippet": "a"}],
+        )
+    message = str(excinfo.value)
+    assert "api.example.test" not in message
+    assert "vendor-key" not in message
+    assert "ConnectError" in message
+    await client.aclose()

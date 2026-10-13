@@ -45,8 +45,9 @@ Agents wired to a personal knowledge base hit two problems:
   order with `fallback: true`. Retrieval never blocks the agent. (Basic Memory's own reranker
   deliberately fails closed with a 503 — a legitimate choice, and a different one; see
   [Design notes](#design-notes).)
-- **Any model.** Mercury Decide (free tier via OpenRouter) by default; Jev behind a flag;
-  `provider: none` for fully local retrieval.
+- **Any decision model, any endpoint.** Mercury Decide (free tier via OpenRouter) by default;
+  Perplexity Decider and Jev as presets; `custom` for any endpoint that speaks the same API,
+  including a local server; `provider: none` for native order. No model is required.
 
 ![The Acheron storage path: a markdown note lands in a watched folder, is parsed into the local index, and its wikilinks become edges in a graph that queries can walk](docs/storage-explainer-pattern-dark-poster.png)
 
@@ -66,9 +67,9 @@ interactive explainers. The explainers are served at
 
 ## Quickstart
 
-Prereqs: Python 3.12+, [Basic Memory](https://github.com/basicmachines-co/basic-memory) with a
-project of markdown notes, and — for reranking — an OpenRouter key (the Mercury tier is free).
-Without a key the server still works and returns native order.
+Prereqs: Python 3.12+ and [Basic Memory](https://github.com/basicmachines-co/basic-memory) with
+a project of markdown notes. Nothing else is required: without a key the server works and
+returns native order. See [Choosing a ranker](#choosing-a-ranker) for the optional upgrades.
 
 ```sh
 uv sync
@@ -96,10 +97,43 @@ claude mcp add --scope user acheron -- /path/to/acheron/.venv/bin/acheron
 
 Do **not** also configure the storage engine's own MCP entry — this server proxies it.
 
+## Choosing a ranker
+
+Every rung is optional, and each one works without the ones below it. Scores are "expected note
+ranked first" on the 16-question demo benchmark; native order scores 7.
+
+| Rung | What you need | Setup | Score |
+| --- | --- | --- | ---: |
+| 1. No key | Nothing | Set `"reranker_enabled": true` in Basic Memory's `config.json`, restart the engine | 12 |
+| 2. Recommended | A free OpenRouter key | `OPENROUTER_API_KEY=...` (Mercury Decide is the default) | 14 |
+| 3. Paid alternates | An OpenRouter key with credit | `ACHERON_PROVIDER=perplexity` or `ACHERON_PROVIDER=jev` | 13–14 |
+| 4. Your own endpoint | Any `/v1/systemone`-compatible server | `ACHERON_PROVIDER=custom` plus URL and model (below) | unmeasured |
+
+Rungs 1 and 2 stack: Mercury on top of the engine's reranker scored 15.
+
+- **Rung 1 fails closed.** The engine's reranker returns an error when it fails, where
+  Acheron's own reranking falls back to native order. See [Design notes](#design-notes).
+- **Rung 3 is a preference, not an upgrade.** Mercury, Perplexity Decider and Jev land within
+  one question of each other here, which is inside the noise; choose on latency, price or vendor.
+- **Rung 4** covers a vendor's direct endpoint or a local server such as llama.cpp or LM Studio
+  running an open-weight decision model:
+
+  ```sh
+  ACHERON_PROVIDER=custom \
+  ACHERON_DECISIONS_URL=http://127.0.0.1:9931/v1/systemone \
+  ACHERON_MODEL=your-decision-model \
+  uv run acheron
+  ```
+
+  It follows the published System One API. It has not been exercised against a live local
+  server yet, and its ranking quality depends on the model you load: measure it with
+  `eval/benchmark.py --url ... --model ...`.
+
 ## Reproduce the benchmark
 
 The repo ships a synthetic corpus (23 notes for a fictional photo-sync project) and 16 labeled
-questions. Replay mode needs no engine and no index — just an OpenRouter key:
+questions. Replay mode needs no engine and no index — just a key for the endpoint you score
+against (an OpenRouter key for the presets, none for a local server):
 
 ```sh
 # no engine needed: rerank the recorded candidate lists
@@ -117,6 +151,8 @@ Measured (16 questions, top-1 / top-3):
 | Native hybrid (engine default) | 7 | 12 |
 | Engine's built-in local reranker (fastembed) | 12 | 14 |
 | Mercury Decide (free) | 14 | 15 |
+| Perplexity Decider v1.1 27B | 14 | 15 |
+| Jev 1.13 | 13–14 (two runs) | 15 |
 | Mercury stacked on the built-in reranker | **15** | **16** |
 
 Caveats, stated up front: 16 questions, hand labels, one synthetic corpus — differences of 1–3
@@ -156,18 +192,23 @@ markdown files when not.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `ACHERON_BM_URL` | `http://127.0.0.1:8765/mcp` | Engine HTTP MCP endpoint |
-| `ACHERON_PROVIDER` | `mercury` | `mercury`, `jev`, or `none` |
-| `ACHERON_MODEL` | provider default | Override the decision model id |
+| `ACHERON_PROVIDER` | `mercury` | `mercury`, `perplexity`, `jev`, `custom`, or `none` |
+| `ACHERON_MODEL` | provider default | Decision model id; required for `custom` |
+| `ACHERON_DECISIONS_URL` | OpenRouter's decisions endpoint | Full URL of the decisions endpoint; required for `custom`. Must be `https` unless it is on this machine |
+| `ACHERON_DECISIONS_KEY` | none | Bearer key for a non-OpenRouter endpoint; omit for a local server |
 | `ACHERON_DEFAULT_PROJECT` | none | Project scope when the caller passes none |
 | `ACHERON_ALL_PROJECTS` | `true` | Search every project when unscoped |
 | `ACHERON_CANDIDATES` | `10` | Native candidates to rerank (clamped to 1–50) |
 | `ACHERON_LIMIT` | `5` | Results returned (clamped to 1–25) |
 | `ACHERON_TIMEOUT` | `60` | Rerank call timeout, seconds (clamped to 1–120) |
-| `ACHERON_RANKING` | `auto` | `auto` (Mercury→model, JEV→fuse), `model`, or `fuse` |
+| `ACHERON_RANKING` | `auto` | `auto` or `model` (order by model score), or `fuse` (blend with native order) |
 | `ACHERON_RRF_K` | `60` | RRF smoothing constant |
 
-Keys: `OPENROUTER_API_KEY` if set, otherwise the key OpenCode already stores in
-`~/.local/share/opencode/auth.json` is reused. Nothing else is needed.
+Keys: for OpenRouter, `OPENROUTER_API_KEY` if set, otherwise the key OpenCode already stores in
+`~/.local/share/opencode/auth.json` is reused. A key is bound to its host: the OpenRouter key is
+only ever sent to `openrouter.ai`, and any other endpoint receives `ACHERON_DECISIONS_KEY` or no
+key at all. The endpoint comes from the environment only; the per-call `provider` argument
+accepts preset names and `none`, never a URL or a model id.
 
 ## Service (macOS)
 
@@ -206,11 +247,11 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/local.basic-memory-http.pl
 ## Development
 
 ```sh
-uv run pytest                     # 30 tests
+uv run pytest                     # 75 tests
 uv run python eval/demo/build_corpus.py   # regenerate the synthetic corpus
 ```
 
 ## Status
 
-v0.2.1, MIT. Reference implementation: no support promise, no maintenance guarantee. Issues and
+v0.3.0, MIT. Reference implementation: no support promise, no maintenance guarantee. Issues and
 pull requests are welcome best-effort. The demo corpus is synthetic; no personal data ships here.

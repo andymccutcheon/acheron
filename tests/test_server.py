@@ -236,3 +236,159 @@ async def test_register_proxies_applies_the_policy():
     rec = Recorder()
     assert await server.register_proxies(server=rec, client=engine) == 1
     assert rec.names == ["read_note"]
+
+
+class TwoNoteEngine(FakeEngine):
+    """Two candidates, so model order and fused order are distinguishable."""
+
+    async def search(self, query, **kwargs):
+        self.calls.append(("search", query, kwargs))
+        return [
+            {
+                "title": title,
+                "entity": "e",
+                "path": title.lower(),
+                "file_path": "f",
+                "project": "demo",
+                "snippet": "s",
+                "native_score": native,
+            }
+            for title, native in (("First", 0.9), ("Second", 0.8))
+        ]
+
+
+def use_scorer(monkeypatch, cfg, scores=None, error=None):
+    """Wire a two-note engine and a recording scorer under the given config."""
+    seen = []
+
+    async def fake_get_bm(url):
+        return TwoNoteEngine()
+
+    async def fake_score(client, **kwargs):
+        seen.append(kwargs)
+        if error:
+            raise error
+        return scores if scores is not None else [1.0, 3.0]
+
+    monkeypatch.setattr(server, "_get_bm", fake_get_bm)
+    monkeypatch.setattr(server.Config, "from_env", classmethod(lambda cls: cfg))
+    monkeypatch.setattr(server, "score_candidates", fake_score)
+    return seen
+
+
+LOCAL_URL = "http://127.0.0.1:9931/v1/systemone"
+VENDOR_URL = "https://api.example.test/v1/systemone"
+
+
+async def test_auto_ranking_uses_model_order_for_jev(monkeypatch):
+    cfg = Config(provider="jev", model="typesafe/jev-1.13", openrouter_key="or-key")
+    use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q"))
+    assert out["ranking"] == "model"
+    assert [item["title"] for item in out["results"]] == ["Second", "First"]
+
+
+async def test_auto_ranking_uses_model_order_for_a_custom_endpoint(monkeypatch):
+    cfg = Config(provider="custom", model="openjev", decisions_url=LOCAL_URL)
+    use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q"))
+    assert out["ranking"] == "model"
+    assert [item["title"] for item in out["results"]] == ["Second", "First"]
+
+
+async def test_explicit_fuse_ranking_is_still_honoured(monkeypatch):
+    cfg = Config(
+        provider="mercury",
+        model="inception/mercury-decide:free",
+        openrouter_key="or-key",
+        ranking="fuse",
+    )
+    use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q"))
+    assert out["ranking"] == "fuse"
+    assert [item["title"] for item in out["results"]] == ["First", "Second"]
+
+
+async def test_default_endpoint_gets_the_openrouter_url_and_key(monkeypatch):
+    cfg = Config(openrouter_key="or-key")
+    seen = use_scorer(monkeypatch, cfg)
+    await server.context_search(query="q")
+    assert seen[0]["url"] == "https://openrouter.ai/api/alpha/decisions"
+    assert seen[0]["key"] == "or-key"
+    assert seen[0]["model"] == "inception/mercury-decide:free"
+
+
+async def test_local_endpoint_is_called_without_any_key(monkeypatch):
+    cfg = Config(
+        provider="custom", model="openjev", decisions_url=LOCAL_URL, openrouter_key="or-key"
+    )
+    seen = use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q"))
+    assert out["fallback"] is False
+    assert seen[0]["url"] == LOCAL_URL
+    assert seen[0]["key"] is None
+    assert seen[0]["model"] == "openjev"
+
+
+async def test_vendor_endpoint_gets_the_dedicated_key_not_the_openrouter_key(monkeypatch):
+    cfg = Config(
+        provider="custom",
+        model="jev-latest",
+        decisions_url=VENDOR_URL,
+        decisions_key="vendor-key",
+        openrouter_key="or-key",
+    )
+    seen = use_scorer(monkeypatch, cfg)
+    await server.context_search(query="q")
+    assert seen[0]["url"] == VENDOR_URL
+    assert seen[0]["key"] == "vendor-key"
+
+
+async def test_remote_endpoint_without_a_key_falls_open_without_calling_it(monkeypatch):
+    cfg = Config(
+        provider="custom", model="jev-latest", decisions_url=VENDOR_URL, openrouter_key="or-key"
+    )
+    seen = use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q"))
+    assert seen == []
+    assert out["fallback"] is True
+    assert out["ranking"] == "native"
+    assert out["provider"] == "native (no key for the configured decision endpoint)"
+    assert [item["title"] for item in out["results"]] == ["First", "Second"]
+
+
+async def test_failing_custom_endpoint_falls_open_to_native_order(monkeypatch):
+    cfg = Config(provider="custom", model="openjev", decisions_url=LOCAL_URL)
+    use_scorer(monkeypatch, cfg, error=server.DecisionsError("decisions API 500: down"))
+    out = json.loads(await server.context_search(query="q"))
+    assert out["fallback"] is True
+    assert out["ranking"] == "native"
+    assert [item["title"] for item in out["results"]] == ["First", "Second"]
+
+
+async def test_per_call_preset_override_uses_openrouter_not_the_custom_endpoint(monkeypatch):
+    cfg = Config(
+        provider="custom",
+        model="openjev",
+        decisions_url=LOCAL_URL,
+        decisions_key="vendor-key",
+        openrouter_key="or-key",
+    )
+    seen = use_scorer(monkeypatch, cfg)
+    await server.context_search(query="q", provider="perplexity")
+    assert seen[0]["url"] == "https://openrouter.ai/api/alpha/decisions"
+    assert seen[0]["key"] == "or-key"
+    assert seen[0]["model"] == "perplexity/pplx-decider-v1.1-27b"
+
+
+async def test_per_call_provider_cannot_name_an_endpoint_or_model(monkeypatch):
+    cfg = Config(openrouter_key="or-key")
+    seen = use_scorer(monkeypatch, cfg)
+    out = json.loads(await server.context_search(query="q", provider="https://evil.example.test/x"))
+    assert seen == []
+    assert out["ranking"] == "native"
+
+
+def test_search_description_does_not_name_a_default_model():
+    tool = server.mcp._tool_manager.get_tool("context_search")
+    assert "Mercury" not in tool.description

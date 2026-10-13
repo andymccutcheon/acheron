@@ -10,9 +10,15 @@ Two modes:
 
       uv run python eval/benchmark.py --replay eval/demo/candidates.json --provider mercury --delay 3.2
 
+  Any other endpoint — a vendor's direct endpoint or a local /v1/systemone server.
+
+      uv run python eval/benchmark.py --replay eval/demo/candidates.json \\
+          --url http://127.0.0.1:9931/v1/systemone --model openjev
+
 Record a candidate file from a live run with `--record PATH`; `--provider none`
-does a fast native-only pass. Provider runs need an OpenRouter key
-(OPENROUTER_API_KEY or the OpenCode auth store). Engine mode also needs the
+does a fast native-only pass. Preset runs need an OpenRouter key
+(OPENROUTER_API_KEY or the OpenCode auth store); a `--url` run uses
+ACHERON_DECISIONS_KEY, or no key for a local server. Engine mode also needs the
 Basic Memory HTTP MCP service running (see scripts/start-bm-http.sh).
 
 Each question is a dict: {id, q, project, accept[]}, where `accept` holds title
@@ -32,7 +38,15 @@ from pathlib import Path
 import httpx
 
 from acheron.bm import BMClient
-from acheron.config import PROVIDERS, Config
+from acheron.config import (
+    CUSTOM,
+    OPENROUTER_DECISIONS_URL,
+    PRESETS,
+    Config,
+    decision_key,
+    is_loopback,
+    validate_decisions_url,
+)
 from acheron.decisions import score_candidates
 from acheron.ranking import fuse
 
@@ -69,10 +83,19 @@ async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--provider",
-        choices=["mercury", "jev", "both", "none"],
+        choices=[*PRESETS, "both", "all", "none"],
         default="mercury",
-        help="decision model(s) to run; 'none' is a native-only pass (useful with --record)",
+        help=(
+            "decision model preset(s) to run; 'both' is mercury+jev, 'all' is every preset, "
+            "'none' is a native-only pass (useful with --record)"
+        ),
     )
+    parser.add_argument(
+        "--url",
+        default=None,
+        help="score against this decisions endpoint instead of a preset (needs --model)",
+    )
+    parser.add_argument("--model", default=None, help="decision model id for --url")
     parser.add_argument(
         "--all-projects",
         action="store_true",
@@ -96,14 +119,29 @@ async def main() -> None:
         questions = json.loads(Path(args.questions).read_text())
 
     cfg = Config.from_env()
-    providers = {
-        "mercury": ["mercury"],
-        "jev": ["jev"],
-        "both": ["mercury", "jev"],
-        "none": [],
-    }[args.provider]
-    if providers and not cfg.openrouter_key:
-        raise SystemExit("No OpenRouter key in env or OpenCode auth store")
+    if bool(args.url) != bool(args.model):
+        raise SystemExit("--url and --model go together")
+    # Each target is name -> (model id, endpoint URL).
+    if args.url:
+        targets = {CUSTOM: (args.model, validate_decisions_url(args.url))}
+    else:
+        names = {"both": ["mercury", "jev"], "all": list(PRESETS), "none": []}.get(
+            args.provider, [args.provider]
+        )
+        targets = {name: (PRESETS[name], OPENROUTER_DECISIONS_URL) for name in names}
+    providers = list(targets)
+    keys = {
+        name: decision_key(
+            url, openrouter_key=cfg.openrouter_key, decisions_key=cfg.decisions_key
+        )
+        for name, (_, url) in targets.items()
+    }
+    for name, (_, url) in targets.items():
+        if not keys[name] and not is_loopback(url):
+            raise SystemExit(
+                f"No key for {name}: set OPENROUTER_API_KEY for presets, "
+                "or ACHERON_DECISIONS_KEY for --url"
+            )
 
     bm = None if args.replay else BMClient(cfg.bm_url)
     http = httpx.AsyncClient() if providers else None
@@ -147,8 +185,9 @@ async def main() -> None:
                 started = time.time()
                 scores = await score_candidates(
                     http,
-                    model=PROVIDERS[provider],
-                    key=cfg.openrouter_key,
+                    url=targets[provider][1],
+                    model=targets[provider][0],
+                    key=keys[provider],
                     query=item["q"],
                     candidates=candidates,
                 )
